@@ -1,8 +1,8 @@
 name: Build and sync generated files
 on:
   push:
-    # paths:
-    #   - spec/openapi.yaml
+    paths:
+      - spec/openapi.yaml
 jobs:
   build-go:
     name: Build Go stub
