@@ -68,6 +68,12 @@ paths:
       summary: Add a restaurant to a community
       tags:
         - "Restaurant"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
       requestBody:
         required: true
         content:
@@ -134,6 +140,17 @@ paths:
       summary: Create a new community
       tags:
         - "Comment"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+        - schema:
+            type: integer
+          name: restaurant_id
+          in: path
+          required: true
       requestBody:
         required: true
         content:
