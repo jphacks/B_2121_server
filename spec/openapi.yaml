@@ -21,6 +21,7 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/community"
+      operationId: get-community-by-id
   '/community':
     post:
       summary: Create a new community
@@ -39,6 +40,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/community"
+      operationId: new-community
   '/community/{id}/restaurants':
     get:
       summary: List restaurants in a community
@@ -64,6 +66,7 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/restaurant"
+      operationId: list-community-restaurants
     post:
       summary: Add a restaurant to a community
       tags:
