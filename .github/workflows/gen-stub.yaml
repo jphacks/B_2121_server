@@ -1,8 +1,8 @@
 name: Build and sync generated files
 on:
   push:
-    # paths:
-    #   - spec/openapi.yaml
+    paths:
+      - spec/openapi.yaml
 jobs:
   build-go:
     name: Build Go stub
@@ -16,7 +16,9 @@ jobs:
       - name: install oapi-go
         run:  go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen
       - name: Build server stub
-        run: oapi-codegen -generate "types,server,spec" -o ./openapi/generated.go -package openapi ./spec/openapi.yaml
+        run: |
+          mkdir -p openapi
+          oapi-codegen -generate "types,server,spec" -o ./openapi/generated.go -package openapi ./spec/openapi.yaml
       - name: 'Sync'
         run: |
           git config --global user.email "bot@example.com"

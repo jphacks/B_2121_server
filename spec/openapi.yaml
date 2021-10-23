@@ -21,6 +21,7 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/community"
+      operationId: get-community-by-id
   '/community':
     post:
       summary: Create a new community
@@ -39,6 +40,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/community"
+      operationId: new-community
   '/community/{id}/restaurants':
     get:
       summary: List restaurants in a community
@@ -64,10 +66,17 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/restaurant"
+      operationId: list-community-restaurants
     post:
       summary: Add a restaurant to a community
       tags:
         - "Restaurant"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
       requestBody:
         required: true
         content:
@@ -77,6 +86,7 @@ paths:
       responses:
         '204':
           description: No Content
+      operationId: add-restaurant-to-community
   '/community/{id}/restaurants/{restaurant_id}':
     delete:
       summary: Remove a restrant from the specified community
@@ -102,6 +112,7 @@ paths:
           description: |
             Not found
             Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
+      operationId: remove-restaurant-from-community
   '/community/{id}/restaurants/{restaurant_id}/comments':
     get:
       summary: Get private comments for a restaurant
@@ -130,10 +141,22 @@ paths:
           description: |
             Not found
             Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
+      operationId: get-restaurant-comment
     put:
       summary: Create a new community
       tags:
         - "Comment"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+        - schema:
+            type: integer
+          name: restaurant_id
+          in: path
+          required: true
       requestBody:
         required: true
         content:
@@ -147,6 +170,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/comment"
+      operationId: new-community
   '/community/{id}/users':
     get:
       summary: List users in a community
@@ -175,6 +199,7 @@ paths:
         '404':
           description: |
             Not found
+      operationId: list-users-of-community
   '/user/{id}/communities':
     get:
       summary: Get communities where the specified user joins
@@ -186,7 +211,7 @@ paths:
             $ref: "#/components/schemas/long"
           in: path
           required: true
-        - $ref: "#components/parameters/pageQuery"
+        - $ref: "#/components/parameters/pageQuery"
       responses:
         '200':
           description: OK
@@ -201,6 +226,7 @@ paths:
                         items:
                           $ref: '#/components/schemas/community'
                   - $ref: '#/components/schemas/pageInfo'
+      operationId: list-user-communities
   '/user':
     post:
       summary: Create a new user
@@ -224,6 +250,7 @@ paths:
                     properties:
                       auth_info:
                         $ref: '#/components/schemas/authInfo'
+      operationId: new-user
 components:
   parameters:
     pageQuery:
