@@ -186,7 +186,7 @@ paths:
             $ref: "#/components/schemas/long"
           in: path
           required: true
-        - $ref: "#components/parameters/pageQuery"
+        - $ref: "#/components/parameters/pageQuery"
       responses:
         '200':
           description: OK
