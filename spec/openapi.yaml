@@ -143,7 +143,7 @@ paths:
             Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
       operationId: get-restaurant-comment
     put:
-      summary: Create a new community
+      summary: Update comment of the restaurant
       tags:
         - "Comment"
       parameters:
@@ -170,7 +170,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/comment"
-      operationId: new-community
+      operationId: update-restaurant-comment
   '/community/{id}/users':
     get:
       summary: List users in a community
