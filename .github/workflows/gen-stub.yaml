@@ -27,7 +27,7 @@ jobs:
           git commit --allow-empty -m "Sync to proto commit [skip ci]" -m "${{ github.repository }}@${{ github.sha }}"
           git push origin "${GITHUB_REF##*/}"
   build-doc:
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     name: Build API documentation
     runs-on: ubuntu-20.04
     steps:
