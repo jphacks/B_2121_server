@@ -1,0 +1,393 @@
+openapi: "3.0.0"
+info:
+  title: Goyotashi
+  version: "0.1.0"
+paths:
+  '/community/{id}':
+    get:
+      summary: Get a community by id
+      tags:
+        - "Community"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/community"
+  '/community':
+    post:
+      summary: Create a new community
+      tags:
+        - "Community"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/createCommunityRequest"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/community"
+  '/community/{id}/restaurants':
+    get:
+      summary: List restaurants in a community
+      tags:
+        - "Restaurant"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      restaurants:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/restaurant"
+    post:
+      summary: Add a restaurant to a community
+      tags:
+        - "Restaurant"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/addRestaurantRequest"
+      responses:
+        '204':
+          description: No Content
+  '/community/{id}/restaurants/{restaurant_id}':
+    delete:
+      summary: Remove a restrant from the specified community
+      tags:
+        - Restaurant
+      parameters:
+        - name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          in: path
+        - name: restaurant_id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          in: path
+      responses:
+        '204':
+          description: No content
+        '404':
+          description: |
+            Not found
+            Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
+  '/community/{id}/restaurants/{restaurant_id}/comments':
+    get:
+      summary: Get private comments for a restaurant
+      tags:
+        - "Comment"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+        - schema:
+            type: integer
+          name: restaurant_id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/comment"
+        '404':
+          description: |
+            Not found
+            Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
+    put:
+      summary: Create a new community
+      tags:
+        - "Comment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/updateCommentRequest"
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/comment"
+  '/community/{id}/users':
+    get:
+      summary: List users in a community
+      tags:
+        - "User"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/user"
+                  - type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/user"
+        '404':
+          description: |
+            Not found
+  '/user/{id}/communities':
+    get:
+      summary: Get communities where the specified user joins
+      tags:
+        - User
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          in: path
+          required: true
+        - $ref: "#components/parameters/pageQuery"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      communities:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/community'
+                  - $ref: '#/components/schemas/pageInfo'
+  '/user':
+    post:
+      summary: Create a new user
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUserRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/user'
+                  - type: object
+                    properties:
+                      auth_info:
+                        $ref: '#/components/schemas/authInfo'
+components:
+  parameters:
+    pageQuery:
+      name: after
+      schema:
+        $ref: "#/components/schemas/long"
+      in: query
+      required: false
+  schemas:
+    location:
+      type: object
+      required:
+        - lat
+        - lng
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: latitude
+        lng:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: longitude
+      example:
+        lng: 35.02488258885156
+        lat: 135.77692591466467
+    community:
+      type: object
+      description: Goyotashi community
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: "#/components/schemas/long"
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: "#/components/schemas/location"
+    createCommunityRequest:
+      type: object
+    restaurant:
+      type: object
+      description: Restaurant
+      required:
+        - id
+        - name
+        - location
+      properties:
+        id:
+          $ref: "#/components/schemas/long"
+        name:
+          type: string
+        location:
+          $ref: "#/components/schemas/location"
+    addRestaurantRequest:
+      type: object
+      description: Add a restaurant to a community
+      required:
+        - restaurant_id
+      properties:
+        restaurant_id:
+          $ref: "#/components/schemas/long"
+    user:
+      type: object
+      description: Reperesents user
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: "#/components/schemas/long"
+          example: 100
+        name:
+          type: string
+          example: "あたらん"
+    bookmark:
+      type: object
+      description: Represents many to many relationsip of bookmark between users and communities
+      required:
+        - user_id
+        - community_id
+      properties:
+        user_id:
+          $ref: "#/components/schemas/long"
+        community_id:
+          $ref: "#/components/schemas/long"
+    affiliation:
+      type: object
+      description: Represents many to many relationsip of affiliations between users and communities
+      required:
+        - user_id
+        - community_id
+      properties:
+        user_id:
+          $ref: "#/components/schemas/long"
+        community_id:
+          $ref: "#/components/schemas/long"
+    comment:
+      type: object
+      description: Private comments for a restaurant
+      properties:
+        community_id:
+          $ref: "#/components/schemas/long"
+        restaurant_id:
+          $ref: "#/components/schemas/long"
+        body:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+          description: Updated date and time
+          example: "2021-01-30T08:30:00Z"
+    updateCommentRequest:
+      type: object
+      description: Update private comments for a restaurant
+      properties:
+        body:
+          type: string
+    pageInfo:
+      type: object
+      properties:
+        begin_cursor:
+          type: integer
+          example: 100
+        end_cursor:
+          type: integer
+          example: 199
+        has_previous:
+          type: boolean
+          example: true
+        has_next:
+          type: boolean
+          example: true
+    long:
+      type: integer
+      format: int64
+    authVender:
+      type: string
+      enum: [Google, Apple, Anonymous]
+    authInfo:
+      type: object
+      required:
+        - vender
+        - token
+      properties:
+        vender:
+          $ref: "#/components/schemas/authVender"
+        token:
+          type: string
+    createUserRequest:
+      type: object
+      required:
+        - name
+        - vender
+      properties:
+        name:
+          type: string
+          example: "あたらん"
+        vender:
+          $ref: "#/components/schemas/authVender"
