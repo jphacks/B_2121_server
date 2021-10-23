@@ -1,0 +1,26 @@
+name: Build and sync generated files
+on:
+  push:
+    # paths:
+    #   - spec/openapi.yaml
+jobs:
+  build-go:
+    name: Build Go stub
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: install oapi-go
+        run:  go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen
+      - name: Build server stub
+        run: oapi-codegen -generate "types,server,spec" -o ./openapi/generated.go -package openapi ./spec/openapi.yaml
+      - name: 'Sync'
+        run: |
+          git config --global user.email "bot@example.com"
+          git config --global user.name "bot"
+          git add ./
+          git commit --allow-empty -m "Sync to proto commit [skip ci]" -m "${{ github.repository }}@${{ github.sha }}"
+          git push origin "${GITHUB_REF##*/}"
