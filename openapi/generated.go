@@ -110,67 +110,67 @@ type User struct {
 // PageQuery defines model for pageQuery.
 type PageQuery Long
 
-// PostCommunityJSONBody defines parameters for PostCommunity.
-type PostCommunityJSONBody CreateCommunityRequest
+// NewCommunityJSONBody defines parameters for NewCommunity.
+type NewCommunityJSONBody CreateCommunityRequest
 
-// PostCommunityIdRestaurantsJSONBody defines parameters for PostCommunityIdRestaurants.
-type PostCommunityIdRestaurantsJSONBody AddRestaurantRequest
+// AddRestaurantToCommunityJSONBody defines parameters for AddRestaurantToCommunity.
+type AddRestaurantToCommunityJSONBody AddRestaurantRequest
 
-// PutCommunityIdRestaurantsRestaurantIdCommentsJSONBody defines parameters for PutCommunityIdRestaurantsRestaurantIdComments.
-type PutCommunityIdRestaurantsRestaurantIdCommentsJSONBody UpdateCommentRequest
+// NewCommunityJSONBody defines parameters for NewCommunity.
+type NewCommunityJSONBody UpdateCommentRequest
 
-// PostUserJSONBody defines parameters for PostUser.
-type PostUserJSONBody CreateUserRequest
+// NewUserJSONBody defines parameters for NewUser.
+type NewUserJSONBody CreateUserRequest
 
-// GetUserIdCommunitiesParams defines parameters for GetUserIdCommunities.
-type GetUserIdCommunitiesParams struct {
+// ListUserCommunitiesParams defines parameters for ListUserCommunities.
+type ListUserCommunitiesParams struct {
 	After *PageQuery `json:"after,omitempty"`
 }
 
-// PostCommunityJSONRequestBody defines body for PostCommunity for application/json ContentType.
-type PostCommunityJSONRequestBody PostCommunityJSONBody
+// NewCommunityJSONRequestBody defines body for NewCommunity for application/json ContentType.
+type NewCommunityJSONRequestBody NewCommunityJSONBody
 
-// PostCommunityIdRestaurantsJSONRequestBody defines body for PostCommunityIdRestaurants for application/json ContentType.
-type PostCommunityIdRestaurantsJSONRequestBody PostCommunityIdRestaurantsJSONBody
+// AddRestaurantToCommunityJSONRequestBody defines body for AddRestaurantToCommunity for application/json ContentType.
+type AddRestaurantToCommunityJSONRequestBody AddRestaurantToCommunityJSONBody
 
-// PutCommunityIdRestaurantsRestaurantIdCommentsJSONRequestBody defines body for PutCommunityIdRestaurantsRestaurantIdComments for application/json ContentType.
-type PutCommunityIdRestaurantsRestaurantIdCommentsJSONRequestBody PutCommunityIdRestaurantsRestaurantIdCommentsJSONBody
+// NewCommunityJSONRequestBody defines body for NewCommunity for application/json ContentType.
+type NewCommunityJSONRequestBody NewCommunityJSONBody
 
-// PostUserJSONRequestBody defines body for PostUser for application/json ContentType.
-type PostUserJSONRequestBody PostUserJSONBody
+// NewUserJSONRequestBody defines body for NewUser for application/json ContentType.
+type NewUserJSONRequestBody NewUserJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Create a new community
 	// (POST /community)
-	PostCommunity(ctx echo.Context) error
+	NewCommunity(ctx echo.Context) error
 	// Get a community by id
 	// (GET /community/{id})
-	GetCommunityId(ctx echo.Context, id int) error
+	GetCommunityById(ctx echo.Context, id int) error
 	// List restaurants in a community
 	// (GET /community/{id}/restaurants)
-	GetCommunityIdRestaurants(ctx echo.Context, id int) error
+	ListCommunityRestaurants(ctx echo.Context, id int) error
 	// Add a restaurant to a community
 	// (POST /community/{id}/restaurants)
-	PostCommunityIdRestaurants(ctx echo.Context, id int) error
+	AddRestaurantToCommunity(ctx echo.Context, id int) error
 	// Remove a restrant from the specified community
 	// (DELETE /community/{id}/restaurants/{restaurant_id})
-	DeleteCommunityIdRestaurantsRestaurantId(ctx echo.Context, id int64, restaurantId int64) error
+	RemoveRestaurantFromCommunity(ctx echo.Context, id int64, restaurantId int64) error
 	// Get private comments for a restaurant
 	// (GET /community/{id}/restaurants/{restaurant_id}/comments)
-	GetCommunityIdRestaurantsRestaurantIdComments(ctx echo.Context, id int, restaurantId int) error
+	GetRestaurantComment(ctx echo.Context, id int, restaurantId int) error
 	// Create a new community
 	// (PUT /community/{id}/restaurants/{restaurant_id}/comments)
-	PutCommunityIdRestaurantsRestaurantIdComments(ctx echo.Context, id int, restaurantId int) error
+	NewCommunity(ctx echo.Context, id int, restaurantId int) error
 	// List users in a community
 	// (GET /community/{id}/users)
-	GetCommunityIdUsers(ctx echo.Context, id int) error
+	ListUsersOfCommunity(ctx echo.Context, id int) error
 	// Create a new user
 	// (POST /user)
-	PostUser(ctx echo.Context) error
+	NewUser(ctx echo.Context) error
 	// Get communities where the specified user joins
 	// (GET /user/{id}/communities)
-	GetUserIdCommunities(ctx echo.Context, id Long, params GetUserIdCommunitiesParams) error
+	ListUserCommunities(ctx echo.Context, id Long, params ListUserCommunitiesParams) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -178,33 +178,17 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// PostCommunity converts echo context to params.
-func (w *ServerInterfaceWrapper) PostCommunity(ctx echo.Context) error {
+// NewCommunity converts echo context to params.
+func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostCommunity(ctx)
+	err = w.Handler.NewCommunity(ctx)
 	return err
 }
 
-// GetCommunityId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetCommunityId(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "id" -------------
-	var id int
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetCommunityId(ctx, id)
-	return err
-}
-
-// GetCommunityIdRestaurants converts echo context to params.
-func (w *ServerInterfaceWrapper) GetCommunityIdRestaurants(ctx echo.Context) error {
+// GetCommunityById converts echo context to params.
+func (w *ServerInterfaceWrapper) GetCommunityById(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
@@ -215,12 +199,12 @@ func (w *ServerInterfaceWrapper) GetCommunityIdRestaurants(ctx echo.Context) err
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetCommunityIdRestaurants(ctx, id)
+	err = w.Handler.GetCommunityById(ctx, id)
 	return err
 }
 
-// PostCommunityIdRestaurants converts echo context to params.
-func (w *ServerInterfaceWrapper) PostCommunityIdRestaurants(ctx echo.Context) error {
+// ListCommunityRestaurants converts echo context to params.
+func (w *ServerInterfaceWrapper) ListCommunityRestaurants(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
@@ -231,12 +215,28 @@ func (w *ServerInterfaceWrapper) PostCommunityIdRestaurants(ctx echo.Context) er
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostCommunityIdRestaurants(ctx, id)
+	err = w.Handler.ListCommunityRestaurants(ctx, id)
 	return err
 }
 
-// DeleteCommunityIdRestaurantsRestaurantId converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteCommunityIdRestaurantsRestaurantId(ctx echo.Context) error {
+// AddRestaurantToCommunity converts echo context to params.
+func (w *ServerInterfaceWrapper) AddRestaurantToCommunity(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id int
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.AddRestaurantToCommunity(ctx, id)
+	return err
+}
+
+// RemoveRestaurantFromCommunity converts echo context to params.
+func (w *ServerInterfaceWrapper) RemoveRestaurantFromCommunity(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int64
@@ -255,12 +255,12 @@ func (w *ServerInterfaceWrapper) DeleteCommunityIdRestaurantsRestaurantId(ctx ec
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.DeleteCommunityIdRestaurantsRestaurantId(ctx, id, restaurantId)
+	err = w.Handler.RemoveRestaurantFromCommunity(ctx, id, restaurantId)
 	return err
 }
 
-// GetCommunityIdRestaurantsRestaurantIdComments converts echo context to params.
-func (w *ServerInterfaceWrapper) GetCommunityIdRestaurantsRestaurantIdComments(ctx echo.Context) error {
+// GetRestaurantComment converts echo context to params.
+func (w *ServerInterfaceWrapper) GetRestaurantComment(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
@@ -279,12 +279,12 @@ func (w *ServerInterfaceWrapper) GetCommunityIdRestaurantsRestaurantIdComments(c
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetCommunityIdRestaurantsRestaurantIdComments(ctx, id, restaurantId)
+	err = w.Handler.GetRestaurantComment(ctx, id, restaurantId)
 	return err
 }
 
-// PutCommunityIdRestaurantsRestaurantIdComments converts echo context to params.
-func (w *ServerInterfaceWrapper) PutCommunityIdRestaurantsRestaurantIdComments(ctx echo.Context) error {
+// NewCommunity converts echo context to params.
+func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
@@ -303,12 +303,12 @@ func (w *ServerInterfaceWrapper) PutCommunityIdRestaurantsRestaurantIdComments(c
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PutCommunityIdRestaurantsRestaurantIdComments(ctx, id, restaurantId)
+	err = w.Handler.NewCommunity(ctx, id, restaurantId)
 	return err
 }
 
-// GetCommunityIdUsers converts echo context to params.
-func (w *ServerInterfaceWrapper) GetCommunityIdUsers(ctx echo.Context) error {
+// ListUsersOfCommunity converts echo context to params.
+func (w *ServerInterfaceWrapper) ListUsersOfCommunity(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
@@ -319,21 +319,21 @@ func (w *ServerInterfaceWrapper) GetCommunityIdUsers(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetCommunityIdUsers(ctx, id)
+	err = w.Handler.ListUsersOfCommunity(ctx, id)
 	return err
 }
 
-// PostUser converts echo context to params.
-func (w *ServerInterfaceWrapper) PostUser(ctx echo.Context) error {
+// NewUser converts echo context to params.
+func (w *ServerInterfaceWrapper) NewUser(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.PostUser(ctx)
+	err = w.Handler.NewUser(ctx)
 	return err
 }
 
-// GetUserIdCommunities converts echo context to params.
-func (w *ServerInterfaceWrapper) GetUserIdCommunities(ctx echo.Context) error {
+// ListUserCommunities converts echo context to params.
+func (w *ServerInterfaceWrapper) ListUserCommunities(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id Long
@@ -344,7 +344,7 @@ func (w *ServerInterfaceWrapper) GetUserIdCommunities(ctx echo.Context) error {
 	}
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetUserIdCommunitiesParams
+	var params ListUserCommunitiesParams
 	// ------------- Optional query parameter "after" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
@@ -353,7 +353,7 @@ func (w *ServerInterfaceWrapper) GetUserIdCommunities(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetUserIdCommunities(ctx, id, params)
+	err = w.Handler.ListUserCommunities(ctx, id, params)
 	return err
 }
 
@@ -385,46 +385,46 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.POST(baseURL+"/community", wrapper.PostCommunity)
-	router.GET(baseURL+"/community/:id", wrapper.GetCommunityId)
-	router.GET(baseURL+"/community/:id/restaurants", wrapper.GetCommunityIdRestaurants)
-	router.POST(baseURL+"/community/:id/restaurants", wrapper.PostCommunityIdRestaurants)
-	router.DELETE(baseURL+"/community/:id/restaurants/:restaurant_id", wrapper.DeleteCommunityIdRestaurantsRestaurantId)
-	router.GET(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.GetCommunityIdRestaurantsRestaurantIdComments)
-	router.PUT(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.PutCommunityIdRestaurantsRestaurantIdComments)
-	router.GET(baseURL+"/community/:id/users", wrapper.GetCommunityIdUsers)
-	router.POST(baseURL+"/user", wrapper.PostUser)
-	router.GET(baseURL+"/user/:id/communities", wrapper.GetUserIdCommunities)
+	router.POST(baseURL+"/community", wrapper.NewCommunity)
+	router.GET(baseURL+"/community/:id", wrapper.GetCommunityById)
+	router.GET(baseURL+"/community/:id/restaurants", wrapper.ListCommunityRestaurants)
+	router.POST(baseURL+"/community/:id/restaurants", wrapper.AddRestaurantToCommunity)
+	router.DELETE(baseURL+"/community/:id/restaurants/:restaurant_id", wrapper.RemoveRestaurantFromCommunity)
+	router.GET(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.GetRestaurantComment)
+	router.PUT(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.NewCommunity)
+	router.GET(baseURL+"/community/:id/users", wrapper.ListUsersOfCommunity)
+	router.POST(baseURL+"/user", wrapper.NewUser)
+	router.GET(baseURL+"/user/:id/communities", wrapper.ListUserCommunities)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9xZzY7bNhB+FYLtUWvLXtuxfUtdYBG0aNpFN4cmxoK2xjZTiVRIahPD0CG59dwH6MPt",
-	"ixQk9W9qrSTeYtNLYq2Hw+H3zXwzlA94zaOYM2BK4vkBx0SQCBSI7GkLvyUg9vqBMjzH78yThxmJAM8x",
-	"2SgQ2MNyvYOIaKvvBWzwHH/XL/327beyH3K2xWma5vZmDxIE1yAVSQRh6hreJSCV/nsAci1orCjX+z4P",
-	"AkSQKAyR4oigNY+ihFGlI4oFj0EoCsZraXlLg45xeVjAu4QKCPD8dcPD0sNqH+sj89VbWCucepgkaveC",
-	"bbhBqra74n8CMx/sGqkE1Vt4+A5YAOJUQNrzK2vZDCtz4GV7tMX1qtgHWBLphVecb0PAHn4ex/Z/xtk+",
-	"4omsOCkD1dACczDxq6B3RAHKDCTacFGj5oiLFQ/2TjAK+jpz5H0JsR5O4oAoCG6J4zw39juk/0WEBUjR",
-	"SMMDH0ikgZrjoT8cXPiDi0v/d386v/Tnvv8H9vCGi0g7xHrlRbaqccbUQU+ZtEexXPE9V0Tu6AOZXVvh",
-	"ALU7KiFfk9zNw/aZXZrX/cFxzmqS0iCXCFd+rgUQBYv8hJWabzG9kSAqVnU88ohKvu4/frr/+M/9p7/u",
-	"P/2NvUeoQbNl4cd1xCq0RWAHHOp8GVyOe8+eTWbD8WwwmkxGk2ceDtkWzy/HPX84mk6H4+l0Oh6MJ2mT",
-	"+9CVwCFRVCUB1FKSJytT5BH5QCMtAIOp7+GIMvt0YR6zsFkSrfQpszCO/HO27bDBrOZ/duy+AaI+i93R",
-	"DaANpdiQMjUZlWxSpmBrg9ZNyi3DK9hSdrtOhOSixsTA912egAVO69nMZb0j8pbBB1WzVSKBwnjFeQiE",
-	"5caxgDuq9fb0ApduVBT2iKPrdvV9WnpQ2cVFuxXqhW0trcOAlWwUn6sTudBOpJWIJs4xCJBmN2Px5Wh/",
-	"rm59hsRqW5pVhKLKOC9aixEuIe15/N6g5+toeAyMxBTP8WXP7/n6XETtzJH6tYYVc8uIPrTh8UWghwIu",
-	"1aLSsoSl7ocM7zVnKhsmSByH1GZA/620ydZtemxpG2kdGV1PtlhizqQlZej754uiOKXZuJ4eL38yPMkk",
-	"iogemvHCxIwIYvC+1tMV2UpNYwnaUq8s3fcPNEh1MFtw4H0FJdwvAsNWObe/zmZ1zWA5qpuEqeNUndub",
-	"+pYunwyIV6Cqsz5a7ZE5TDcM+6UeyI54XldWPEVoSRi+3JhgHgK56Iupd2i9HVnRUhDJU5xVZLXUSyIE",
-	"2bsEdNmF2J+pVBW5loiyxqUup7jS35a65Z8Wof+IxfPLnPM+3EnkRsf96heOFllQdehP36ed0D9cXv1D",
-	"7XaW2nhCUHBM1o/m7266yo/n0baTQ6SuEIfb+l3z63ZYdqQrz6HUwyO3iUIbnrDgDSvAQ1wYKgVJmEJU",
-	"IsZ1XW2pVCAg8PT3agco1PXGN+azjGFNNxSCirAGHOxaHQShrGFYwtF7wxr5dA0Rv4MspUxCbQSP2nY6",
-	"T3r188Hv82W9mmGL3MtjiMTXJtbZe0cnrc9f/qQtKv5t5aaeH7rcFarzBOSdJnE1muT/mVbnb2bO+1yn",
-	"ZjY467CZJfN55nVo0yp9I+wqRjfG9tudLs3t93iyLCDopDOZky+eJk/rkGviNDG2z5qamYzf/CVA+7x5",
-	"Y18CPN59t/ru8xEK56vIJona3eYvGk69S7VXkW7c2jIMHirO7O1LC2m2HnN2s3DbqlKvtXqdG5+hLLv8",
-	"3uS2Krful7+/nbGq6xw2MOo8HmTX99O163W9pS67vguohIze70BAYxbQCYDecsqkI0HS9N8AAAD//00J",
-	"hW3zHAAA",
+	"H4sIAAAAAAAC/9RZzY7bNhB+FYLtUWvLu2vH9i0x0EXQImkX2RyaGAvaGttMJVIhqU0MQ4fk1nMfoA+3",
+	"L1KQ1L8pW0nsIrkk1no4M5xv5psZeYeXPIo5A6Yknu5wTASJQIHIntbwRwJiqx8ow1P83jx5mJEI8BST",
+	"lQKBPSyXG4iIlvpZwApP8U/9Um/ffiv7IWdrnKZpLm9skCC4BalIIghTt/A+Aan03wOQS0FjRbm2+zQI",
+	"EEGiEESKI4KWPIoSRpX2KBY8BqEoGK2l5D0NOvrlYQHvEyogwNM3DQ1zD6ttrK/MF+9gqXDqYZKozXO2",
+	"4iZSNeuK/wXMfLBnpBJUm/DwA7AAxDGHtObXVrLpVqbAy2y0+fW6sAMsifTBG87XIWAPP41j+z/jbBvx",
+	"RFaUlI7q0AJzIPG7oA9EAcoEJFpxUYNmD4sFD7bOYBTwdcbI+xpgPZzEAVEQ3BPHfe7sd0j/iwgLkKKR",
+	"Dg98JJEO1BRf+peDC39wceW/8sfTK3/q+39iD6+4iLRCrE9eZKcad0wd8JRJu+fLDd9yReSGHsjs2glH",
+	"ULtHJeRLkqs5LJ/JpXnd7xz3rCYpDXKKcOXnUgBRMMtvWKn5FtE7CaIiVY9H7lGJ1+Onz4+f/n38/Pfj",
+	"53+wd4YaNCYLPa4rVkNbOLbDoc6XwdWw9+TJaHI5nAyuR6Pr0RMPh2yNp1fDnn95PR5fDsfj8XAwHKVN",
+	"7ENXAodEUZUEUEtJnixMkUfkI400AQzGvocjyuzThXnM3GZJtNC3zNzY08/ZuoOBSU3/ZF99I4j6Ltai",
+	"O4DWlcIgZWp0XaJJmYK1dVo3KTcNL2BN2f0yEZKLGhID33dpAhY4pScTl/SGyHsGH1VNVokECuEF5yEQ",
+	"lgvHAh6o5tvjB1y8UWHYPYxu29n3++KDihUX7JaoZ7a1tA4DlrJRfKpO5Ip2Ii1FNOMcgwBprBmJr4/2",
+	"l/LWF1CslqVZRSiqjPKitRjiEtLex+8Ner72hsfASEzxFF/1/J6v70XUxlypX2tYMbeI6EsbHJ8HeIpf",
+	"wIdZpWMJi9yzLNxLzlQ2S5A4DqlNgP47aXOt2/DY0jXSemB0OdlaiTmTFpNL3z+dF8UtjeF6drz81cAk",
+	"kygiembGM+MzIojBh1pLV2QtNYpl0Ob6ZKm+v6NBqp1ZgyPcN6CKk8+2zwMDVzm4v8mGdQ1hOaubjKlH",
+	"qjq4NwkunX83YbwBVR320WKLzGW6RbFfEoJsjehvVKpKbpUHvsfIkjB8uTLOHIpx0RdTb9e6HVnSUhDJ",
+	"Y5BVaLXkSyIE2boIdN4FVx30Cl1LRFljqcsRrvS3uW75ThJ6Wt0kX/EqIZ0Jw9OznHMb7sRx1/vd6gVH",
+	"s8ypeuCPb9POwB+urf6utpul1p8QFOxDdQsRf4BS+S+CRyfF6+jcqIvCoba+Xn6bhXlHjPLEST187RZR",
+	"aMUTFrxlRYwQFwY/QRKmEJWIcV1KayoVCAg8/b3aAAp1ifGV+SxjWNIVhaBCpQEHe1Y7QShrCJbh6L1l",
+	"jSSyGGZ5ZLJoJXjUZuk0OdXPZ71DrbHUnw2SZyGAb82fk3eFTiyev9ZJW/j5x0pBPRh02QKqgwLkPSQ5",
+	"Psf+KFlz+j7kXMQ69aHBSYfELFdPM2lDG+PoVe7wbHinJV6u/oeZ4uxzodlb92fCIgadeCRT8tVz4HGe",
+	"cc2Kxsf2KVGDlAGcr++t6+qd3d7Pt6lWX1qeoXC+CWuSqM19/obg2EtQu0N0g9aWYXCoOLPXJi2Y2XrM",
+	"wc3cPViVs4rsCYqyy+9EbqnSdL/83eyENV2HsBGizs0/27qPV67Xdbucd13hKy6jDxsQ0Oj0Gn/0jlMm",
+	"HfmRpv8FAAD//wqxKjKrHAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
