@@ -4,16 +4,6 @@ on:
     paths:
       - spec/openapi.yaml
 jobs:
-  lint:
-    name: Lint openapi.yaml
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: OpenAPI Lint Checks
-        uses: nwestfall/openapi-action@v1.0.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./spec/openapi.yaml
   build-go:
     name: Build Go stub
     runs-on: ubuntu-20.04
