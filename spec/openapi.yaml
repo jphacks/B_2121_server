@@ -329,7 +329,6 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/long"
-          example: 100
         name:
           type: string
           example: "あたらん"
