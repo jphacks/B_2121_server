@@ -167,7 +167,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/updateCommentRequest"
       responses:
         '201':
@@ -257,6 +257,84 @@ paths:
                       auth_info:
                         $ref: '#/components/schemas/authInfo'
       operationId: new-user
+  '/user/{id}/bookmark':
+    get:
+      summary: Get bookmarking list of the specified user
+      tags:
+        - Bookmark
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      communities:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/community"
+    post:
+      summary: Create a new bookmark
+      tags:
+        - Bookmark
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - community_id
+              properties:
+                community_id:
+                  $ref: "#components/schemas/long"
+      responses:
+        '201':
+          description: Created
+        '404':
+          description: User or community not found
+        '409':
+          description: This community is already bookmarked by the specified user
+  '/user/{id}/bookmark/{community_id}':
+    delete:
+      summary: 'Delete bookmark from the specified user'
+      tags:
+        - Bookmark
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+        - name: community_id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      responses:
+        '204':
+          description: |
+            No content
+            The bookmark was deleted successfully
+        '404':
+          description: |
+            Not Found
+            Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
 components:
   parameters:
     pageQuery:
@@ -401,7 +479,7 @@ components:
       format: int64
     authVendor:
       type: string
-      enum: [Google, Apple, Anonymous]
+      enum: [ Google, Apple, Anonymous ]
     authInfo:
       type: object
       required:
