@@ -116,8 +116,8 @@ type NewCommunityJSONBody CreateCommunityRequest
 // AddRestaurantToCommunityJSONBody defines parameters for AddRestaurantToCommunity.
 type AddRestaurantToCommunityJSONBody AddRestaurantRequest
 
-// NewCommunityJSONBody defines parameters for NewCommunity.
-type NewCommunityJSONBody UpdateCommentRequest
+// UpdateRestaurantCommentJSONBody defines parameters for UpdateRestaurantComment.
+type UpdateRestaurantCommentJSONBody UpdateCommentRequest
 
 // NewUserJSONBody defines parameters for NewUser.
 type NewUserJSONBody CreateUserRequest
@@ -133,8 +133,8 @@ type NewCommunityJSONRequestBody NewCommunityJSONBody
 // AddRestaurantToCommunityJSONRequestBody defines body for AddRestaurantToCommunity for application/json ContentType.
 type AddRestaurantToCommunityJSONRequestBody AddRestaurantToCommunityJSONBody
 
-// NewCommunityJSONRequestBody defines body for NewCommunity for application/json ContentType.
-type NewCommunityJSONRequestBody NewCommunityJSONBody
+// UpdateRestaurantCommentJSONRequestBody defines body for UpdateRestaurantComment for application/json ContentType.
+type UpdateRestaurantCommentJSONRequestBody UpdateRestaurantCommentJSONBody
 
 // NewUserJSONRequestBody defines body for NewUser for application/json ContentType.
 type NewUserJSONRequestBody NewUserJSONBody
@@ -159,9 +159,9 @@ type ServerInterface interface {
 	// Get private comments for a restaurant
 	// (GET /community/{id}/restaurants/{restaurant_id}/comments)
 	GetRestaurantComment(ctx echo.Context, id int, restaurantId int) error
-	// Create a new community
+	// Update comment of the restaurant
 	// (PUT /community/{id}/restaurants/{restaurant_id}/comments)
-	NewCommunity(ctx echo.Context, id int, restaurantId int) error
+	UpdateRestaurantComment(ctx echo.Context, id int, restaurantId int) error
 	// List users in a community
 	// (GET /community/{id}/users)
 	ListUsersOfCommunity(ctx echo.Context, id int) error
@@ -283,8 +283,8 @@ func (w *ServerInterfaceWrapper) GetRestaurantComment(ctx echo.Context) error {
 	return err
 }
 
-// NewCommunity converts echo context to params.
-func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
+// UpdateRestaurantComment converts echo context to params.
+func (w *ServerInterfaceWrapper) UpdateRestaurantComment(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id int
@@ -303,7 +303,7 @@ func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.NewCommunity(ctx, id, restaurantId)
+	err = w.Handler.UpdateRestaurantComment(ctx, id, restaurantId)
 	return err
 }
 
@@ -391,7 +391,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/community/:id/restaurants", wrapper.AddRestaurantToCommunity)
 	router.DELETE(baseURL+"/community/:id/restaurants/:restaurant_id", wrapper.RemoveRestaurantFromCommunity)
 	router.GET(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.GetRestaurantComment)
-	router.PUT(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.NewCommunity)
+	router.PUT(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.UpdateRestaurantComment)
 	router.GET(baseURL+"/community/:id/users", wrapper.ListUsersOfCommunity)
 	router.POST(baseURL+"/user", wrapper.NewUser)
 	router.GET(baseURL+"/user/:id/communities", wrapper.ListUserCommunities)
@@ -420,11 +420,11 @@ var swaggerSpec = []string{
 	"Y5BVaLXkSyIE2boIdN4FVx30Cl1LRFljqcsRrvS3uW75ThJ6Wt0kX/EqIZ0Jw9OznHMb7sRx1/vd6gVH",
 	"s8ypeuCPb9POwB+urf6utpul1p8QFOxDdQsRf4BS+S+CRyfF6+jcqIvCoba+Xn6bhXlHjPLEST187RZR",
 	"aMUTFrxlRYwQFwY/QRKmEJWIcV1KayoVCAg8/b3aAAp1ifGV+SxjWNIVhaBCpQEHe1Y7QShrCJbh6L1l",
-	"jSSyGGZ5ZLJoJXjUZuk0OdXPZ71DrbHUnw2SZyGAb82fk3eFTiyev9ZJW/j5x0pBPRh02QKqgwLkPSQ5",
-	"Psf+KFlz+j7kXMQ69aHBSYfELFdPM2lDG+PoVe7wbHinJV6u/oeZ4uxzodlb92fCIgadeCRT8tVz4HGe",
-	"cc2Kxsf2KVGDlAGcr++t6+qd3d7Pt6lWX1qeoXC+CWuSqM19/obg2EtQu0N0g9aWYXCoOLPXJi2Y2XrM",
-	"wc3cPViVs4rsCYqyy+9EbqnSdL/83eyENV2HsBGizs0/27qPV67Xdbucd13hKy6jDxsQ0Oj0Gn/0jlMm",
-	"HfmRpv8FAAD//wqxKjKrHAAA",
+	"jSSyGGZ5ZLJoJXjUZuk0OdXPZ71DrbHUnw2SZyGAb82fk3eFTiyev9ZJW/j5x0pBPRh02QKqgwLkPSRx",
+	"ZI/dLH7kBDp9S3LuZJ1a0uCk82KWtkenimw7zI7kmXckHxw0pPe7wwPjnZZ4ufofBo2zD4tmmd0fFIsY",
+	"dCKXTMlXD4fHycc1QBof20dHDVIGcL7Tt+6wd3alP9/6Wn2TeYYS+iasSaI29/lrg2NvRu1i0Q1auwUH",
+	"h3bj7F1KC2a2HnNwM3cPVuWsInuCouzy45FbqjTdL39MO2FN1yFshKjzRJCt4scr1+u6cs677vUVl9GH",
+	"DQhotH+NP3rHKZOO/EjT/wIAAP//tsZ/4sAcAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

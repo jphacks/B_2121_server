@@ -1,0 +1,37 @@
+name: Lint, Test and Build
+on:
+  push:
+
+jobs:
+  lint:
+    name: Lint files
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.42.1
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Cache packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-gomod-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gomod-${{ hashFiles('go.sum') }}
+            ${{ runner.os }}-gomod-
+      - name: Get dependencies
+        run: go mod download -x
+      - name: Run tests
+        run: go test -v ./...
