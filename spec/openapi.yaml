@@ -3,6 +3,11 @@ info:
   title: Goyotashi
   version: "0.1.0"
   description: "This is the API specification of goyotashi server"
+servers:
+  - url: http://localhost:8080
+    description: Local test server
+  - url: https://api.goyotashi.kmconner.net
+    description: production server
 paths:
   '/community/{id}':
     get:
