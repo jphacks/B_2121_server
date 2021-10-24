@@ -399,7 +399,7 @@ components:
     long:
       type: integer
       format: int64
-    authVender:
+    authVendor:
       type: string
       enum: [Google, Apple, Anonymous]
     authInfo:
@@ -409,7 +409,7 @@ components:
         - token
       properties:
         vender:
-          $ref: "#/components/schemas/authVender"
+          $ref: "#/components/schemas/authVendor"
         token:
           type: string
     createUserRequest:
@@ -422,4 +422,4 @@ components:
           type: string
           example: "あたらん"
         vender:
-          $ref: "#/components/schemas/authVender"
+          $ref: "#/components/schemas/authVendor"
