@@ -381,7 +381,7 @@ paths:
                 - community_id
               properties:
                 community_id:
-                  $ref: "#components/schemas/long"
+                  $ref: "#/components/schemas/long"
       responses:
         '201':
           description: Created
