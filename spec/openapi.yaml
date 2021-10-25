@@ -26,7 +26,7 @@ paths:
           content:
             'application/json':
               schema:
-                $ref: "#/components/schemas/community"
+                $ref: "#/components/schemas/community_detail"
       operationId: get-community-by-id
   '/community':
     post:
@@ -323,6 +323,19 @@ paths:
                       auth_info:
                         $ref: '#/components/schemas/authInfo'
       operationId: new-user
+  '/user/me':
+    get:
+      tags:
+        - User
+      summary: Get my profile in detail
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user_detail"
+      operationId: get-my-profile
   '/user/{id}/bookmark':
     get:
       summary: Get bookmarking list of the specified user
@@ -446,6 +459,17 @@ components:
           type: string
         location:
           $ref: "#/components/schemas/location"
+    community_detail:
+      allOf:
+        - $ref: "#/components/schemas/community"
+        - type: object
+          required:
+            - user_count
+          properties:
+            user_count:
+              type: integer
+            num_restaurant:
+              type: integer
     createCommunityRequest:
       type: object
     restaurant:
@@ -573,7 +597,12 @@ components:
           example: "あたらん"
         vender:
           $ref: "#/components/schemas/authVendor"
-
-# TODO:
-# - コミュニティの検索
-# -
+    user_detail:
+      allOf:
+        - $ref: "#/components/schemas/user"
+        - type: object
+          properties:
+            community_count:
+              type: integer
+            bookmark_count:
+              type: integer
