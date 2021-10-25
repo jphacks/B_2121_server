@@ -396,6 +396,9 @@ components:
           type: string
         location:
           $ref: "#/components/schemas/location"
+        image_url:
+          type: string
+          format: uri
     addRestaurantRequest:
       type: object
       description: Add a restaurant to a community
@@ -416,6 +419,9 @@ components:
         name:
           type: string
           example: "あたらん"
+        profile_image_url:
+          type: string
+          format: uri
     bookmark:
       type: object
       description: Represents many to many relationsip of bookmark between users and communities
@@ -501,3 +507,7 @@ components:
           example: "あたらん"
         vender:
           $ref: "#/components/schemas/authVendor"
+
+# TODO:
+# - コミュニティの検索
+# -
