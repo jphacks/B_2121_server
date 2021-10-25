@@ -58,6 +58,7 @@ paths:
           name: id
           in: path
           required: true
+        - $ref: "#/components/parameters/pageQuery"
       responses:
         '200':
           description: OK
@@ -181,13 +182,14 @@ paths:
     get:
       summary: List users in a community
       tags:
-        - "User"
+        - "Community"
       parameters:
         - schema:
             type: integer
           name: id
           in: path
           required: true
+        - $ref: "#/components/parameters/pageQuery"
       responses:
         '200':
           description: OK
@@ -206,6 +208,70 @@ paths:
           description: |
             Not found
       operationId: list-users-of-community
+  '/community/search':
+    get:
+      summary: Search communities using keyword and location
+      tags:
+        - Community
+      parameters:
+        - $ref: "#/components/parameters/pageQuery"
+        - name: keyword
+          schema:
+            type: string
+          in: query
+          required: true
+        - name: center
+          schema:
+            $ref: "#/components/schemas/location"
+          in: query
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      restaurants:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/community"
+      operationId: search-communities
+  '/restaurant/search':
+    get:
+      summary: Search restaurants using
+      tags:
+        - Restaurant
+      parameters:
+        - $ref: "#/components/parameters/pageQuery"
+        - name: keyword
+          schema:
+            type: string
+          in: query
+          required: true
+        - name: center
+          schema:
+            $ref: "#/components/schemas/location"
+          in: query
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      restaurants:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/restaurant"
+      operationId: search-restaurants
   '/user/{id}/communities':
     get:
       summary: Get communities where the specified user joins
