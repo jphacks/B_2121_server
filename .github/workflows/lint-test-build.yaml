@@ -33,5 +33,7 @@ jobs:
             ${{ runner.os }}-gomod-
       - name: Get dependencies
         run: go mod download -x
+      - name: Build
+        run: go build .
       - name: Run tests
         run: go test -v ./...
