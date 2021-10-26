@@ -316,12 +316,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/user'
-                  - type: object
-                    properties:
-                      auth_info:
-                        $ref: '#/components/schemas/authInfo'
+                $ref: "#/components/schemas/createUserResponse"
       operationId: new-user
   '/user/me':
     get:
@@ -334,7 +329,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/user_detail"
+                $ref: "#/components/schemas/userDetail"
       operationId: get-my-profile
   '/user/{id}/bookmark':
     get:
@@ -597,12 +592,25 @@ components:
           example: "あたらん"
         vendor:
           $ref: "#/components/schemas/authVendor"
-    user_detail:
+    userDetail:
       allOf:
         - $ref: "#/components/schemas/user"
         - type: object
+          required:
+            - community_count
+            - bookmark_count
           properties:
             community_count:
               type: integer
             bookmark_count:
               type: integer
+    createUserResponse:
+      type: object
+      required:
+        - user
+        - auth_info
+      properties:
+        user:
+          $ref: "#/components/schemas/user"
+        auth_info:
+          $ref: "#/components/schemas/authInfo"
