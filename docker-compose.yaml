@@ -14,3 +14,5 @@ services:
       - MYSQL_DATABASE=goyotashi
       - MYSQL_USER=goyotashi
       - MYSQL_PASSWORD=password
+    volumes:
+      - "./mysql/:/etc/mysql/conf.d/"
