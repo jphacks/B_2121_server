@@ -5,13 +5,17 @@ import (
 
 	"github.com/jphacks/B_2121_server/api"
 	"github.com/jphacks/B_2121_server/openapi"
+	"github.com/jphacks/B_2121_server/session"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func main() {
 	e := echo.New()
-	handler := api.NewHandler()
+
+	store := session.NewStore("key")
+	handler := api.NewHandler(store)
+	e.Use(session.NewSessionMiddleware(&session.MiddlewareConfig{SessionStore: store}))
 	openapi.RegisterHandlers(e, handler)
 	swaggerHandler := echoSwagger.EchoWrapHandler(func(c *echoSwagger.Config) {
 		c.URL = "/spec"
