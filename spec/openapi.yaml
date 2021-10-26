@@ -579,10 +579,10 @@ components:
     authInfo:
       type: object
       required:
-        - vender
+        - vendor
         - token
       properties:
-        vender:
+        vendor:
           $ref: "#/components/schemas/authVendor"
         token:
           type: string
@@ -590,12 +590,12 @@ components:
       type: object
       required:
         - name
-        - vender
+        - vendor
       properties:
         name:
           type: string
           example: "あたらん"
-        vender:
+        vendor:
           $ref: "#/components/schemas/authVendor"
     user_detail:
       allOf:
