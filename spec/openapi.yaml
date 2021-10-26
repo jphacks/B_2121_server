@@ -242,7 +242,7 @@ paths:
       operationId: search-communities
   '/restaurant/search':
     get:
-      summary: Search restaurants using
+      summary: Search restaurants using keyword and location
       tags:
         - Restaurant
       parameters:
