@@ -72,6 +72,9 @@ func (h handler) NewUser(ctx echo.Context) error {
 		return echo.ErrBadRequest
 	}
 	user, auth, err := h.userUseCase.NewUser(req.Name, vendor)
+	if err != nil {
+		return err
+	}
 
 	userOapi := user.ToOpenApiUser()
 	authOapi, err := auth.ToOpenApi()
