@@ -7,14 +7,20 @@ import (
 	"github.com/jphacks/B_2121_server/openapi"
 	"github.com/jphacks/B_2121_server/session"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func main() {
+	log.Info("Server starting...")
 	e := echo.New()
+	e.Logger.SetLevel(log.INFO)
 
 	store := session.NewStore("key")
 	handler := api.NewHandler(store)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.Use(session.NewSessionMiddleware(&session.MiddlewareConfig{SessionStore: store}))
 	openapi.RegisterHandlers(e, handler)
 	swaggerHandler := echoSwagger.EchoWrapHandler(func(c *echoSwagger.Config) {
