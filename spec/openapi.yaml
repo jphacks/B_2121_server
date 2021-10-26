@@ -592,10 +592,13 @@ components:
           example: "あたらん"
         vendor:
           $ref: "#/components/schemas/authVendor"
-    user_detail:
+    userDetail:
       allOf:
         - $ref: "#/components/schemas/user"
         - type: object
+          required:
+            - community_count
+            - bookmark_count
           properties:
             community_count:
               type: integer
