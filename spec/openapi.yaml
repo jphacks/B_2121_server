@@ -329,7 +329,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/user_detail"
+                $ref: "#/components/schemas/userDetail"
       operationId: get-my-profile
   '/user/{id}/bookmark':
     get:
