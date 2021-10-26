@@ -316,12 +316,15 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/user'
-                  - type: object
-                    properties:
-                      auth_info:
-                        $ref: '#/components/schemas/authInfo'
+                type: object
+                required:
+                  - user
+                  - auth_info
+                properties:
+                  user:
+                    $ref: '#/components/schemas/user'
+                  auth_info:
+                    $ref: '#/components/schemas/authInfo'
       operationId: new-user
   '/user/me':
     get:
