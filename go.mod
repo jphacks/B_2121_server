@@ -5,8 +5,11 @@ go 1.17
 require (
 	github.com/deepmap/oapi-codegen v1.8.3
 	github.com/getkin/kin-openapi v0.80.0
+	github.com/gorilla/securecookie v1.1.1
+	github.com/gorilla/sessions v1.2.1
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/swaggo/echo-swagger v1.1.4
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 
 require (
