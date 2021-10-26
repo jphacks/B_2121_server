@@ -19,13 +19,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Defines values for AuthVender.
+// Defines values for AuthVendor.
 const (
-	AuthVenderAnonymous AuthVender = "Anonymous"
+	AuthVendorAnonymous AuthVendor = "Anonymous"
 
-	AuthVenderApple AuthVender = "Apple"
+	AuthVendorApple AuthVendor = "Apple"
 
-	AuthVenderGoogle AuthVender = "Google"
+	AuthVendorGoogle AuthVendor = "Google"
 )
 
 // Add a restaurant to a community
@@ -36,11 +36,11 @@ type AddRestaurantRequest struct {
 // AuthInfo defines model for authInfo.
 type AuthInfo struct {
 	Token  string     `json:"token"`
-	Vender AuthVender `json:"vender"`
+	Vendor AuthVendor `json:"vendor"`
 }
 
-// AuthVender defines model for authVender.
-type AuthVender string
+// AuthVendor defines model for authVendor.
+type AuthVendor string
 
 // Private comments for a restaurant
 type Comment struct {
@@ -60,13 +60,22 @@ type Community struct {
 	Name        string    `json:"name"`
 }
 
+// CommunityDetail defines model for community_detail.
+type CommunityDetail struct {
+	// Embedded struct due to allOf(#/components/schemas/community)
+	Community `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	NumRestaurant *int `json:"num_restaurant,omitempty"`
+	UserCount     int  `json:"user_count"`
+}
+
 // CreateCommunityRequest defines model for createCommunityRequest.
 type CreateCommunityRequest map[string]interface{}
 
 // CreateUserRequest defines model for createUserRequest.
 type CreateUserRequest struct {
 	Name   string     `json:"name"`
-	Vender AuthVender `json:"vender"`
+	Vendor AuthVendor `json:"vendor"`
 }
 
 // Location defines model for location.
@@ -92,6 +101,7 @@ type PageInfo struct {
 // Restaurant
 type Restaurant struct {
 	Id       Long     `json:"id"`
+	ImageUrl *string  `json:"image_url,omitempty"`
 	Location Location `json:"location"`
 	Name     string   `json:"name"`
 }
@@ -103,8 +113,18 @@ type UpdateCommentRequest struct {
 
 // Reperesents user
 type User struct {
-	Id   Long   `json:"id"`
-	Name string `json:"name"`
+	Id              Long    `json:"id"`
+	Name            string  `json:"name"`
+	ProfileImageUrl *string `json:"profile_image_url,omitempty"`
+}
+
+// UserDetail defines model for user_detail.
+type UserDetail struct {
+	// Embedded struct due to allOf(#/components/schemas/user)
+	User `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	BookmarkCount  *int `json:"bookmark_count,omitempty"`
+	CommunityCount *int `json:"community_count,omitempty"`
 }
 
 // PageQuery defines model for pageQuery.
@@ -113,14 +133,43 @@ type PageQuery Long
 // NewCommunityJSONBody defines parameters for NewCommunity.
 type NewCommunityJSONBody CreateCommunityRequest
 
+// SearchCommunitiesParams defines parameters for SearchCommunities.
+type SearchCommunitiesParams struct {
+	After   *PageQuery `json:"after,omitempty"`
+	Keyword string     `json:"keyword"`
+	Center  *Location  `json:"center,omitempty"`
+}
+
+// ListCommunityRestaurantsParams defines parameters for ListCommunityRestaurants.
+type ListCommunityRestaurantsParams struct {
+	After *PageQuery `json:"after,omitempty"`
+}
+
 // AddRestaurantToCommunityJSONBody defines parameters for AddRestaurantToCommunity.
 type AddRestaurantToCommunityJSONBody AddRestaurantRequest
 
 // UpdateRestaurantCommentJSONBody defines parameters for UpdateRestaurantComment.
 type UpdateRestaurantCommentJSONBody UpdateCommentRequest
 
+// ListUsersOfCommunityParams defines parameters for ListUsersOfCommunity.
+type ListUsersOfCommunityParams struct {
+	After *PageQuery `json:"after,omitempty"`
+}
+
+// SearchRestaurantsParams defines parameters for SearchRestaurants.
+type SearchRestaurantsParams struct {
+	After   *PageQuery `json:"after,omitempty"`
+	Keyword string     `json:"keyword"`
+	Center  Location   `json:"center"`
+}
+
 // NewUserJSONBody defines parameters for NewUser.
 type NewUserJSONBody CreateUserRequest
+
+// PostUserIdBookmarkJSONBody defines parameters for PostUserIdBookmark.
+type PostUserIdBookmarkJSONBody struct {
+	CommunityId Long `json:"community_id"`
+}
 
 // ListUserCommunitiesParams defines parameters for ListUserCommunities.
 type ListUserCommunitiesParams struct {
@@ -139,17 +188,23 @@ type UpdateRestaurantCommentJSONRequestBody UpdateRestaurantCommentJSONBody
 // NewUserJSONRequestBody defines body for NewUser for application/json ContentType.
 type NewUserJSONRequestBody NewUserJSONBody
 
+// PostUserIdBookmarkJSONRequestBody defines body for PostUserIdBookmark for application/json ContentType.
+type PostUserIdBookmarkJSONRequestBody PostUserIdBookmarkJSONBody
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Create a new community
 	// (POST /community)
 	NewCommunity(ctx echo.Context) error
+	// Search communities using keyword and location
+	// (GET /community/search)
+	SearchCommunities(ctx echo.Context, params SearchCommunitiesParams) error
 	// Get a community by id
 	// (GET /community/{id})
 	GetCommunityById(ctx echo.Context, id int) error
 	// List restaurants in a community
 	// (GET /community/{id}/restaurants)
-	ListCommunityRestaurants(ctx echo.Context, id int) error
+	ListCommunityRestaurants(ctx echo.Context, id int, params ListCommunityRestaurantsParams) error
 	// Add a restaurant to a community
 	// (POST /community/{id}/restaurants)
 	AddRestaurantToCommunity(ctx echo.Context, id int) error
@@ -164,10 +219,25 @@ type ServerInterface interface {
 	UpdateRestaurantComment(ctx echo.Context, id int, restaurantId int) error
 	// List users in a community
 	// (GET /community/{id}/users)
-	ListUsersOfCommunity(ctx echo.Context, id int) error
+	ListUsersOfCommunity(ctx echo.Context, id int, params ListUsersOfCommunityParams) error
+	// Search restaurants using keyword and location
+	// (GET /restaurant/search)
+	SearchRestaurants(ctx echo.Context, params SearchRestaurantsParams) error
 	// Create a new user
 	// (POST /user)
 	NewUser(ctx echo.Context) error
+	// Get my profile in detail
+	// (GET /user/me)
+	GetMyProfile(ctx echo.Context) error
+	// Get bookmarking list of the specified user
+	// (GET /user/{id}/bookmark)
+	GetUserIdBookmark(ctx echo.Context, id Long) error
+	// Create a new bookmark
+	// (POST /user/{id}/bookmark)
+	PostUserIdBookmark(ctx echo.Context, id Long) error
+	// Delete bookmark from the specified user
+	// (DELETE /user/{id}/bookmark/{community_id})
+	DeleteUserIdBookmarkCommunityId(ctx echo.Context, id Long, communityId Long) error
 	// Get communities where the specified user joins
 	// (GET /user/{id}/communities)
 	ListUserCommunities(ctx echo.Context, id Long, params ListUserCommunitiesParams) error
@@ -184,6 +254,38 @@ func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.NewCommunity(ctx)
+	return err
+}
+
+// SearchCommunities converts echo context to params.
+func (w *ServerInterfaceWrapper) SearchCommunities(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchCommunitiesParams
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter after: %s", err))
+	}
+
+	// ------------- Required query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
+	}
+
+	// ------------- Optional query parameter "center" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "center", ctx.QueryParams(), &params.Center)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter center: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.SearchCommunities(ctx, params)
 	return err
 }
 
@@ -214,8 +316,17 @@ func (w *ServerInterfaceWrapper) ListCommunityRestaurants(ctx echo.Context) erro
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListCommunityRestaurantsParams
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter after: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ListCommunityRestaurants(ctx, id)
+	err = w.Handler.ListCommunityRestaurants(ctx, id, params)
 	return err
 }
 
@@ -318,8 +429,49 @@ func (w *ServerInterfaceWrapper) ListUsersOfCommunity(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListUsersOfCommunityParams
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter after: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.ListUsersOfCommunity(ctx, id)
+	err = w.Handler.ListUsersOfCommunity(ctx, id, params)
+	return err
+}
+
+// SearchRestaurants converts echo context to params.
+func (w *ServerInterfaceWrapper) SearchRestaurants(ctx echo.Context) error {
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SearchRestaurantsParams
+	// ------------- Optional query parameter "after" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "after", ctx.QueryParams(), &params.After)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter after: %s", err))
+	}
+
+	// ------------- Required query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
+	}
+
+	// ------------- Required query parameter "center" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "center", ctx.QueryParams(), &params.Center)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter center: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.SearchRestaurants(ctx, params)
 	return err
 }
 
@@ -329,6 +481,71 @@ func (w *ServerInterfaceWrapper) NewUser(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.NewUser(ctx)
+	return err
+}
+
+// GetMyProfile converts echo context to params.
+func (w *ServerInterfaceWrapper) GetMyProfile(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetMyProfile(ctx)
+	return err
+}
+
+// GetUserIdBookmark converts echo context to params.
+func (w *ServerInterfaceWrapper) GetUserIdBookmark(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id Long
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetUserIdBookmark(ctx, id)
+	return err
+}
+
+// PostUserIdBookmark converts echo context to params.
+func (w *ServerInterfaceWrapper) PostUserIdBookmark(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id Long
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostUserIdBookmark(ctx, id)
+	return err
+}
+
+// DeleteUserIdBookmarkCommunityId converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteUserIdBookmarkCommunityId(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id Long
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "id", runtime.ParamLocationPath, ctx.Param("id"), &id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// ------------- Path parameter "community_id" -------------
+	var communityId Long
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "community_id", runtime.ParamLocationPath, ctx.Param("community_id"), &communityId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter community_id: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.DeleteUserIdBookmarkCommunityId(ctx, id, communityId)
 	return err
 }
 
@@ -386,6 +603,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.POST(baseURL+"/community", wrapper.NewCommunity)
+	router.GET(baseURL+"/community/search", wrapper.SearchCommunities)
 	router.GET(baseURL+"/community/:id", wrapper.GetCommunityById)
 	router.GET(baseURL+"/community/:id/restaurants", wrapper.ListCommunityRestaurants)
 	router.POST(baseURL+"/community/:id/restaurants", wrapper.AddRestaurantToCommunity)
@@ -393,7 +611,12 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.GetRestaurantComment)
 	router.PUT(baseURL+"/community/:id/restaurants/:restaurant_id/comments", wrapper.UpdateRestaurantComment)
 	router.GET(baseURL+"/community/:id/users", wrapper.ListUsersOfCommunity)
+	router.GET(baseURL+"/restaurant/search", wrapper.SearchRestaurants)
 	router.POST(baseURL+"/user", wrapper.NewUser)
+	router.GET(baseURL+"/user/me", wrapper.GetMyProfile)
+	router.GET(baseURL+"/user/:id/bookmark", wrapper.GetUserIdBookmark)
+	router.POST(baseURL+"/user/:id/bookmark", wrapper.PostUserIdBookmark)
+	router.DELETE(baseURL+"/user/:id/bookmark/:community_id", wrapper.DeleteUserIdBookmarkCommunityId)
 	router.GET(baseURL+"/user/:id/communities", wrapper.ListUserCommunities)
 
 }
@@ -401,30 +624,39 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"KCwAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -3,6 +3,11 @@ info:
   title: Goyotashi
   version: "0.1.0"
   description: "This is the API specification of goyotashi server"
+servers:
+  - url: http://localhost:8080
+    description: Local test server
+  - url: https://api.goyotashi.kmconner.net
+    description: production server
 paths:
   '/community/{id}':
     get:
@@ -21,7 +26,7 @@ paths:
           content:
             'application/json':
               schema:
-                $ref: "#/components/schemas/community"
+                $ref: "#/components/schemas/community_detail"
       operationId: get-community-by-id
   '/community':
     post:
@@ -53,6 +58,7 @@ paths:
           name: id
           in: path
           required: true
+        - $ref: "#/components/parameters/pageQuery"
       responses:
         '200':
           description: OK
@@ -162,7 +168,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/updateCommentRequest"
       responses:
         '201':
@@ -176,13 +182,14 @@ paths:
     get:
       summary: List users in a community
       tags:
-        - "User"
+        - "Community"
       parameters:
         - schema:
             type: integer
           name: id
           in: path
           required: true
+        - $ref: "#/components/parameters/pageQuery"
       responses:
         '200':
           description: OK
@@ -201,6 +208,70 @@ paths:
           description: |
             Not found
       operationId: list-users-of-community
+  '/community/search':
+    get:
+      summary: Search communities using keyword and location
+      tags:
+        - Community
+      parameters:
+        - $ref: "#/components/parameters/pageQuery"
+        - name: keyword
+          schema:
+            type: string
+          in: query
+          required: true
+        - name: center
+          schema:
+            $ref: "#/components/schemas/location"
+          in: query
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      restaurants:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/community"
+      operationId: search-communities
+  '/restaurant/search':
+    get:
+      summary: Search restaurants using keyword and location
+      tags:
+        - Restaurant
+      parameters:
+        - $ref: "#/components/parameters/pageQuery"
+        - name: keyword
+          schema:
+            type: string
+          in: query
+          required: true
+        - name: center
+          schema:
+            $ref: "#/components/schemas/location"
+          in: query
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      restaurants:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/restaurant"
+      operationId: search-restaurants
   '/user/{id}/communities':
     get:
       summary: Get communities where the specified user joins
@@ -252,6 +323,97 @@ paths:
                       auth_info:
                         $ref: '#/components/schemas/authInfo'
       operationId: new-user
+  '/user/me':
+    get:
+      tags:
+        - User
+      summary: Get my profile in detail
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user_detail"
+      operationId: get-my-profile
+  '/user/{id}/bookmark':
+    get:
+      summary: Get bookmarking list of the specified user
+      tags:
+        - Bookmark
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/pageInfo"
+                  - type: object
+                    properties:
+                      communities:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/community"
+    post:
+      summary: Create a new bookmark
+      tags:
+        - Bookmark
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - community_id
+              properties:
+                community_id:
+                  $ref: "#/components/schemas/long"
+      responses:
+        '201':
+          description: Created
+        '404':
+          description: User or community not found
+        '409':
+          description: This community is already bookmarked by the specified user
+  '/user/{id}/bookmark/{community_id}':
+    delete:
+      summary: 'Delete bookmark from the specified user'
+      tags:
+        - Bookmark
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+        - name: community_id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      responses:
+        '204':
+          description: |
+            No content
+            The bookmark was deleted successfully
+        '404':
+          description: |
+            Not Found
+            Community or restraunt is not registered, or the list of the specified community does not contain the specified restaurant.
 components:
   parameters:
     pageQuery:
@@ -297,6 +459,17 @@ components:
           type: string
         location:
           $ref: "#/components/schemas/location"
+    community_detail:
+      allOf:
+        - $ref: "#/components/schemas/community"
+        - type: object
+          required:
+            - user_count
+          properties:
+            user_count:
+              type: integer
+            num_restaurant:
+              type: integer
     createCommunityRequest:
       type: object
     restaurant:
@@ -313,6 +486,9 @@ components:
           type: string
         location:
           $ref: "#/components/schemas/location"
+        image_url:
+          type: string
+          format: uri
     addRestaurantRequest:
       type: object
       description: Add a restaurant to a community
@@ -333,6 +509,9 @@ components:
         name:
           type: string
           example: "あたらん"
+        profile_image_url:
+          type: string
+          format: uri
     bookmark:
       type: object
       description: Represents many to many relationsip of bookmark between users and communities
@@ -394,27 +573,36 @@ components:
     long:
       type: integer
       format: int64
-    authVender:
+    authVendor:
       type: string
-      enum: [Google, Apple, Anonymous]
+      enum: [ Google, Apple, Anonymous ]
     authInfo:
       type: object
       required:
-        - vender
+        - vendor
         - token
       properties:
-        vender:
-          $ref: "#/components/schemas/authVender"
+        vendor:
+          $ref: "#/components/schemas/authVendor"
         token:
           type: string
     createUserRequest:
       type: object
       required:
         - name
-        - vender
+        - vendor
       properties:
         name:
           type: string
           example: "あたらん"
-        vender:
-          $ref: "#/components/schemas/authVender"
+        vendor:
+          $ref: "#/components/schemas/authVendor"
+    user_detail:
+      allOf:
+        - $ref: "#/components/schemas/user"
+        - type: object
+          properties:
+            community_count:
+              type: integer
+            bookmark_count:
+              type: integer
