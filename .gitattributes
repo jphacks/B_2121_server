@@ -1,0 +1,2 @@
+* text=auto eol=lf
+go.sum -diff linguist-generated=true
