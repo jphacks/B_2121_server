@@ -592,15 +592,27 @@ components:
           example: "あたらん"
         vendor:
           $ref: "#/components/schemas/authVendor"
-    user_detail:
-      allOf:
-        - $ref: "#/components/schemas/user"
-        - type: object
-          properties:
-            community_count:
-              type: integer
-            bookmark_count:
-              type: integer
+    userDetail:
+      type: object
+      description: Reperesents user
+      required:
+        - id
+        - name
+        - community_count
+        - bookmark_count
+      properties:
+        id:
+          $ref: "#/components/schemas/long"
+        name:
+          type: string
+          example: "あたらん"
+        profile_image_url:
+          type: string
+          format: uri
+        community_count:
+          type: integer
+        bookmark_count:
+          type: integer
     createUserResponse:
       type: object
       required:
