@@ -316,15 +316,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - user
-                  - auth_info
-                properties:
-                  user:
-                    $ref: '#/components/schemas/user'
-                  auth_info:
-                    $ref: '#/components/schemas/authInfo'
+                $ref: "#/components/schemas/createUserResponse"
       operationId: new-user
   '/user/me':
     get:
@@ -609,3 +601,13 @@ components:
               type: integer
             bookmark_count:
               type: integer
+    createUserResponse:
+      type: object
+      required:
+        - user
+        - auth_info
+      properties:
+        user:
+          $ref: "#/components/schemas/user"
+        auth_info:
+          $ref: "#/components/schemas/authInfo"
