@@ -57,7 +57,7 @@ func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (us
 	defer func() {
 		e1 := file.Close()
 		if e1 != nil {
-			e = xerrors.Errorf("failed to close file: %w")
+			e = xerrors.Errorf("failed to close file: %w", e1)
 		}
 	}()
 	err = img.Save(file)
