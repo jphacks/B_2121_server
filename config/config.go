@@ -15,4 +15,9 @@ func LoadServerConfig() (*ServerConfig, error) {
 
 type ServerConfig struct {
 	ProfileImageBaseUrl string `envconfig:"PROFILE_IMAGE_BASE_URL" required:"true" default:"http://localhost:8080/images"`
+	DBHost              string `envconfig:"DB_HOST" default:"goyotashi-mysql"`
+	DBPort              uint16 `envconfig:"DB_PORT" default:"3306"`
+	DBDatabaseName      string `envconfig:"DB_NAME" default:"goyotashi"`
+	DBUser              string `envconfig:"DB_USER" default:"goyotashi"`
+	DBPassword          string `envconfig:"DB_PASSWORD" default:"password"`
 }
