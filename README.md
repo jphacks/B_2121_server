@@ -41,4 +41,5 @@
 
 ## ドキュメントなど
 
-API のドキュメントは Wiki にある
+- API のドキュメントは Wiki にある
+- サーバーサイドの docker image は https://hub.docker.com/r/kmconner/goyotashi/ から参照できる
