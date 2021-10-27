@@ -42,11 +42,13 @@ func main() {
 		return
 	}
 
-	// TODO: register repositories
+	// register repositories
+	communityRepository := database.NewCommunityRepository(db)
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, conf)
-	handler := api.NewHandler(userUseCase)
+	communityUseCase := usecase.NewCommunityUseCase(store, communityRepository)
+	handler := api.NewHandler(userUseCase, communityUseCase)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(session.NewSessionMiddleware(&session.MiddlewareConfig{SessionStore: store}))

@@ -12,8 +12,8 @@ type CommunityUseCase struct {
 	communityRepository models.CommunityRepository
 }
 
-func NewCommunityUseCase(store session.Store) *CommunityUseCase {
-	return &CommunityUseCase{sessionStore: store}
+func NewCommunityUseCase(store session.Store, communityRepository models.CommunityRepository) CommunityUseCase {
+	return CommunityUseCase{sessionStore: store, communityRepository: communityRepository}
 }
 
 func (u *CommunityUseCase) GetCommunity(ctx context.Context, id int64) (*models.CommunityDetail, error) {
