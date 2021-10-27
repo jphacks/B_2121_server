@@ -59,8 +59,8 @@ jobs:
   deploy:
     name: Deploy to server
     runs-on: ubuntu-20.04
-    needs:
-      - docker
+#    needs:
+#      - docker
     steps:
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -78,3 +78,8 @@ jobs:
         run: |
           docker-compose -f docker-compose.prod.yaml pull
           docker-compose -f docker-compose.prod.yaml up --force-recreate -d
+      - name: Notify to Slack
+        uses: craftech-io/slack-action@v1
+        with:
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
