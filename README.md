@@ -63,3 +63,5 @@
 ## ドキュメントなど
 [server side Wiki](https://github.com/jphacks/B_2121_server/wiki)  
 [client side Wiki](https://github.com/jphacks/B_2121_client/wiki)  
+
+- サーバーサイドの docker image は https://hub.docker.com/r/kmconner/goyotashi/ から参照できる
