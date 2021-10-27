@@ -24,7 +24,8 @@ func New(host string, port uint16, dbName string, user string, password string, 
 	mysqlCfg.Params = map[string]string{
 		"charset": "utf8mb4",
 	}
-	loc, err := time.LoadLocation("Asia/Tokyo")
+	time.Local = time.FixedZone("Local", 9*60*60) // Asia/Tokyo
+	loc, err := time.LoadLocation("Local")
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get location: %w", err)
 	}
