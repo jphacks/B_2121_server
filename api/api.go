@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"io/ioutil"
 	"net/http"
 
@@ -9,16 +10,19 @@ import (
 	"github.com/jphacks/B_2121_server/session"
 	"github.com/jphacks/B_2121_server/usecase"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/xerrors"
 )
 
-func NewHandler(userUseCase usecase.UserUseCase) openapi.ServerInterface {
+func NewHandler(userUseCase usecase.UserUseCase, communityUseCase usecase.CommunityUseCase) openapi.ServerInterface {
 	return &handler{
-		userUseCase: userUseCase,
+		userUseCase:      userUseCase,
+		communityUseCase: communityUseCase,
 	}
 }
 
 type handler struct {
-	userUseCase usecase.UserUseCase
+	userUseCase      usecase.UserUseCase
+	communityUseCase usecase.CommunityUseCase
 }
 
 func (h handler) UploadProfileImage(ctx echo.Context) error {
@@ -47,7 +51,28 @@ func (h handler) SearchCommunities(ctx echo.Context, params openapi.SearchCommun
 }
 
 func (h handler) GetCommunityById(ctx echo.Context, id int) error {
-	panic("implement me")
+	community, err := h.communityUseCase.GetCommunity(ctx.Request().Context(), int64(id))
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+
+	//TODO: set Location, NumRestaurant and UserCount
+	return ctx.JSON(http.StatusOK, openapi.CommunityDetail{
+		Community: openapi.Community{
+			Description: &community.Description,
+			Id:          openapi.Long(community.ID),
+			Location: &openapi.Location{
+				Lat: 0,
+				Lng: 0,
+			},
+			Name: community.Name,
+		},
+		NumRestaurant: nil,
+		UserCount:     0,
+	})
 }
 
 func (h handler) ListCommunityRestaurants(ctx echo.Context, id int, params openapi.ListCommunityRestaurantsParams) error {
