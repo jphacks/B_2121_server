@@ -65,3 +65,19 @@ func (h handler) UploadProfileImage(ctx echo.Context) error {
 	}
 	return ctx.JSON(http.StatusOK, openapi.UploadImageProfileResponse{ImageUrl: imgUrl})
 }
+
+func (h handler) ListUserCommunities(ctx echo.Context, id openapi.Long, params openapi.ListUserCommunitiesParams) error {
+	comm, err := h.userUseCase.ListUserCommunities(ctx.Request().Context(), int64(id))
+	if err != nil {
+		return err
+	}
+
+	c := make([]openapi.Community, 0)
+	for _, community := range comm {
+		c = append(c, *community.ToOpenApiCommunity())
+	}
+	return ctx.JSON(http.StatusOK, openapi.ListUserCommunityResponse{
+		Communities: &c,
+		PageInfo:    openapi.PageInfo{},
+	})
+}

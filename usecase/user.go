@@ -104,3 +104,11 @@ func (u *UserUseCase) MyUser(ctx context.Context, userId int64) (*models.UserDet
 	}
 	return user, nil
 }
+
+func (u *UserUseCase) ListUserCommunities(ctx context.Context, userId int64) ([]*models.Community, error) {
+	comm, err := u.userRepo.ListUserCommunity(ctx, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to list communities: %w", err)
+	}
+	return comm, nil
+}

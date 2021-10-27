@@ -9,6 +9,7 @@ import (
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/models_gen"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/xerrors"
 )
 
@@ -78,6 +79,21 @@ func (u userRepository) UpdateProfileImage(ctx context.Context, userId int64, fi
 		return xerrors.Errorf("failed to update database: %w", err)
 	}
 	return nil
+}
+
+func (u userRepository) ListUserCommunity(ctx context.Context, userId int64) ([]*models.Community, error) {
+	community, err := models_gen.Communities(
+		qm.InnerJoin("affiliation ON affiliation.community_id = communities.id"),
+		qm.Where("user_id=?", userId),
+	).All(ctx, u.db)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get communities: %w", err)
+	}
+	ret := make([]*models.Community, 0)
+	for _, c := range community {
+		ret = append(ret, &models.Community{Community: *c})
+	}
+	return ret, nil
 }
 
 func fromGenUser(u *models_gen.User, imageUrlBase url.URL) *models.User {
