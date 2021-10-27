@@ -56,6 +56,26 @@ jobs:
         with:
           push: true
           tags: kmconner/goyotashi:latest
+  mysql:
+    name: Build & push MySQL image
+#    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    needs:
+      - lint
+      - test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to Docker Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: kmconner/goyotashi-mysql:latest
+          context: ./mysql/
   deploy:
     name: Deploy to server
     runs-on: ubuntu-20.04
