@@ -5,6 +5,7 @@ import (
 
 	"github.com/jphacks/B_2121_server/api"
 	"github.com/jphacks/B_2121_server/config"
+	database "github.com/jphacks/B_2121_server/db"
 	"github.com/jphacks/B_2121_server/openapi"
 	"github.com/jphacks/B_2121_server/session"
 	"github.com/jphacks/B_2121_server/usecase"
@@ -23,6 +24,20 @@ func main() {
 	if err != nil {
 		e.Logger.Fatalf("failed to load configuration %v", err)
 	}
+
+	db, err := database.New(conf.DBHost, conf.DBPort, conf.DBDatabaseName, conf.DBUser, conf.DBPassword, e.Logger)
+	if err != nil {
+		e.Logger.Fatalf("failed to connect DB: %v", err)
+	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			e.Logger.Errorf("Failed to close database connection: %v", err)
+		}
+	}()
+
+	// DB migration
+
+	// register repositories
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, conf)

@@ -7,6 +7,7 @@ require (
 	github.com/getkin/kin-openapi v0.80.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/gorilla/sessions v1.2.1
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -21,6 +22,11 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/containerd/containerd v1.5.7 // indirect
+	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/docker v20.10.10+incompatible // indirect
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-units v0.4.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
@@ -32,6 +38,9 @@ require (
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.0.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14 // indirect
 	github.com/swaggo/swag v1.7.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -42,6 +51,7 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/tools v0.1.5 // indirect
+	google.golang.org/grpc v1.41.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

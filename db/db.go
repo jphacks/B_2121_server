@@ -7,10 +7,11 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/xerrors"
 )
 
-func New(host string, port uint16, dbName string, user string, password string) (*sqlx.DB, error) {
+func New(host string, port uint16, dbName string, user string, password string, logger echo.Logger) (*sqlx.DB, error) {
 	mysqlCfg := mysql.NewConfig()
 
 	mysqlCfg.User = user
@@ -45,7 +46,7 @@ func New(host string, port uint16, dbName string, user string, password string) 
 			return nil, xerrors.Errorf("failed to connect to database: %w", err)
 		}
 		duration := time.Millisecond * time.Duration(math.Pow(1.5, float64(i))*1000)
-
+		logger.Warnf("retrying to connect DB...")
 		time.Sleep(duration)
 	}
 	return db, nil
