@@ -32,8 +32,10 @@ CREATE TABLE IF NOT EXISTS `communities_restaurants`
     `community_id`  BIGINT   NOT NULL,
     `restaurant_id` BIGINT   NOT NULL,
     `created_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id),
-    FOREIGN KEY `fk_restaurant_id_restaurants_id` (restaurant_id) REFERENCES `restaurants` (id),
+    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
+    FOREIGN KEY `fk_restaurant_id_restaurants_id` (restaurant_id) REFERENCES `restaurants` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
     UNIQUE `u_community_id_restaurant_id` (community_id, restaurant_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -56,8 +58,10 @@ CREATE TABLE IF NOT EXISTS `affiliation`
     `community_id` BIGINT   NOT NULL,
     `user_id`      BIGINT   NOT NULL,
     `created_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id),
-    FOREIGN KEY `fk_user_id_users_id` (user_id) REFERENCES `users` (id),
+    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
+    FOREIGN KEY `fk_user_id_users_id` (user_id) REFERENCES `users` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
     UNIQUE `u_community_id_user_id` (community_id, user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -69,8 +73,10 @@ CREATE TABLE IF NOT EXISTS `bookmarks`
     `community_id` BIGINT   NOT NULL,
     `user_id`      BIGINT   NOT NULL,
     `created_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id),
-    FOREIGN KEY `fk_user_id_users_id` (user_id) REFERENCES `users` (id),
+    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
+    FOREIGN KEY `fk_user_id_users_id` (user_id) REFERENCES `users` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
     UNIQUE `u_community_id_user_id` (community_id, user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -84,8 +90,10 @@ CREATE TABLE IF NOT EXISTS `comments`
     `body`          VARCHAR(1023) NOT NULL DEFAULT '',
     `created_at`    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id),
-    FOREIGN KEY `fk_restaurant_id_restaurants_id` (restaurant_id) REFERENCES `restaurants` (id),
+    FOREIGN KEY `fk_community_id_communities_id` (community_id) REFERENCES `communities` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
+    FOREIGN KEY `fk_restaurant_id_restaurants_id` (restaurant_id) REFERENCES `restaurants` (id)
+        ON UPDATE RESTRICT ON DELETE CASCADE,
     UNIQUE `u_community_id_restaurant_id` (community_id, restaurant_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
