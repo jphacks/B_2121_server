@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/jphacks/B_2121_server/models"
@@ -10,14 +11,31 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewHandler(sessionStore session.Store) openapi.ServerInterface {
+func NewHandler(userUseCase usecase.UserUseCase) openapi.ServerInterface {
 	return &handler{
-		userUseCase: usecase.NewUserUseCase(sessionStore),
+		userUseCase: userUseCase,
 	}
 }
 
 type handler struct {
 	userUseCase usecase.UserUseCase
+}
+
+func (h handler) UploadProfileImage(ctx echo.Context) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+	data, err := ioutil.ReadAll(ctx.Request().Body)
+	if err != nil {
+		return err
+	}
+	prof, err := h.userUseCase.UpdateUserProfileImage(userId, data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, prof)
 }
 
 func (h handler) NewCommunity(ctx echo.Context) error {
