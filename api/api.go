@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/jphacks/B_2121_server/models"
@@ -21,7 +22,20 @@ type handler struct {
 }
 
 func (h handler) UploadProfileImage(ctx echo.Context) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+	data, err := ioutil.ReadAll(ctx.Request().Body)
+	if err != nil {
+		return err
+	}
+	prof, err := h.userUseCase.UpdateUserProfileImage(userId, data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, prof)
 }
 
 func (h handler) NewCommunity(ctx echo.Context) error {

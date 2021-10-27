@@ -5,10 +5,12 @@ go 1.17
 require (
 	github.com/deepmap/oapi-codegen v1.8.3
 	github.com/getkin/kin-openapi v0.80.0
+	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/gorilla/sessions v1.2.1
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/labstack/gommon v0.3.0
 	github.com/swaggo/echo-swagger v1.1.4
+	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 
