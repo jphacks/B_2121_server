@@ -5,7 +5,27 @@ services:
     image: kmconner/goyotashi:latest
     networks:
       - caddy
+      - default
     restart: always
+    volumes:
+      - profile_images:/profileImages/
+    environment:
+      - DB_USER
+      - DB_PASSWORD
+      - DB_HOST=mysql
+  mysql:
+    container_name: mysql
+    image: kmconner/goyotashi-mysql:latest
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - default
+volumes:
+  profile_images:
+  mysql_data:
+    external: true
 networks:
   caddy:
     external: true
+  default:

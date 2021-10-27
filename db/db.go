@@ -44,11 +44,12 @@ func New(host string, port uint16, dbName string, user string, password string, 
 		if err == nil {
 			break
 		}
+
 		if i == retryMax-1 {
 			return nil, xerrors.Errorf("failed to connect to database: %w", err)
 		}
 		duration := time.Millisecond * time.Duration(math.Pow(1.5, float64(i))*1000)
-		logger.Warnf("retrying to connect DB...")
+		logger.Warnf("retrying to connect DB: %v", err)
 		time.Sleep(duration)
 	}
 	return db, nil
