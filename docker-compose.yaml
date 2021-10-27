@@ -4,6 +4,8 @@ services:
     build: .
     ports:
       - "8080:8080"
+    volumes:
+      - profile_images:/profileImages/
   mysql:
     image: mysql:8.0
     container_name: goyotashi-mysql
@@ -16,3 +18,5 @@ services:
       - MYSQL_PASSWORD=password
     volumes:
       - "./mysql/:/etc/mysql/conf.d/"
+volumes:
+  profile_images:

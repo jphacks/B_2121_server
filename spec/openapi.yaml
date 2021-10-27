@@ -316,12 +316,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/user'
-                  - type: object
-                    properties:
-                      auth_info:
-                        $ref: '#/components/schemas/authInfo'
+                $ref: "#/components/schemas/createUserResponse"
       operationId: new-user
   '/user/me':
     get:
@@ -334,8 +329,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/user_detail"
+                $ref: "#/components/schemas/userDetail"
       operationId: get-my-profile
+  '/user/profile':
+    post:
+      tags:
+        - User
+      requestBody:
+        content:
+          'image/jpeg':
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/uploadImageProfileResponse"
+      operationId: upload-profile-image
   '/user/{id}/bookmark':
     get:
       summary: Get bookmarking list of the specified user
@@ -597,12 +610,32 @@ components:
           example: "あたらん"
         vendor:
           $ref: "#/components/schemas/authVendor"
-    user_detail:
+    userDetail:
       allOf:
         - $ref: "#/components/schemas/user"
         - type: object
+          required:
+            - community_count
+            - bookmark_count
           properties:
             community_count:
               type: integer
             bookmark_count:
               type: integer
+    createUserResponse:
+      type: object
+      required:
+        - user
+        - auth_info
+      properties:
+        user:
+          $ref: "#/components/schemas/user"
+        auth_info:
+          $ref: "#/components/schemas/authInfo"
+    uploadImageProfileResponse:
+      type: object
+      required:
+        - imageUrl
+      properties:
+        imageUrl:
+          type: string
