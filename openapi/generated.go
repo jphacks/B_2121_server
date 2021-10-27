@@ -19,6 +19,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	TokenScopes = "token.Scopes"
+)
+
 // Defines values for AuthVendor.
 const (
 	AuthVendorAnonymous AuthVendor = "Anonymous"
@@ -117,6 +121,11 @@ type Restaurant struct {
 // Update private comments for a restaurant
 type UpdateCommentRequest struct {
 	Body *string `json:"body,omitempty"`
+}
+
+// UploadImageProfileResponse defines model for uploadImageProfileResponse.
+type UploadImageProfileResponse struct {
+	ImageUrl string `json:"imageUrl"`
 }
 
 // Reperesents user
@@ -237,6 +246,9 @@ type ServerInterface interface {
 	// Get my profile in detail
 	// (GET /user/me)
 	GetMyProfile(ctx echo.Context) error
+
+	// (POST /user/profile)
+	UploadProfileImage(ctx echo.Context) error
 	// Get bookmarking list of the specified user
 	// (GET /user/{id}/bookmark)
 	GetUserIdBookmark(ctx echo.Context, id Long) error
@@ -260,6 +272,8 @@ type ServerInterfaceWrapper struct {
 func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.NewCommunity(ctx)
 	return err
@@ -268,6 +282,8 @@ func (w *ServerInterfaceWrapper) NewCommunity(ctx echo.Context) error {
 // SearchCommunities converts echo context to params.
 func (w *ServerInterfaceWrapper) SearchCommunities(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params SearchCommunitiesParams
@@ -308,6 +324,8 @@ func (w *ServerInterfaceWrapper) GetCommunityById(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetCommunityById(ctx, id)
 	return err
@@ -323,6 +341,8 @@ func (w *ServerInterfaceWrapper) ListCommunityRestaurants(ctx echo.Context) erro
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params ListCommunityRestaurantsParams
@@ -349,6 +369,8 @@ func (w *ServerInterfaceWrapper) AddRestaurantToCommunity(ctx echo.Context) erro
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.AddRestaurantToCommunity(ctx, id)
 	return err
@@ -372,6 +394,8 @@ func (w *ServerInterfaceWrapper) RemoveRestaurantFromCommunity(ctx echo.Context)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter restaurant_id: %s", err))
 	}
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.RemoveRestaurantFromCommunity(ctx, id, restaurantId)
@@ -397,6 +421,8 @@ func (w *ServerInterfaceWrapper) GetRestaurantComment(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter restaurant_id: %s", err))
 	}
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetRestaurantComment(ctx, id, restaurantId)
 	return err
@@ -421,6 +447,8 @@ func (w *ServerInterfaceWrapper) UpdateRestaurantComment(ctx echo.Context) error
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter restaurant_id: %s", err))
 	}
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.UpdateRestaurantComment(ctx, id, restaurantId)
 	return err
@@ -436,6 +464,8 @@ func (w *ServerInterfaceWrapper) ListUsersOfCommunity(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params ListUsersOfCommunityParams
@@ -454,6 +484,8 @@ func (w *ServerInterfaceWrapper) ListUsersOfCommunity(ctx echo.Context) error {
 // SearchRestaurants converts echo context to params.
 func (w *ServerInterfaceWrapper) SearchRestaurants(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params SearchRestaurantsParams
@@ -487,6 +519,8 @@ func (w *ServerInterfaceWrapper) SearchRestaurants(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) NewUser(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.NewUser(ctx)
 	return err
@@ -496,8 +530,21 @@ func (w *ServerInterfaceWrapper) NewUser(ctx echo.Context) error {
 func (w *ServerInterfaceWrapper) GetMyProfile(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetMyProfile(ctx)
+	return err
+}
+
+// UploadProfileImage converts echo context to params.
+func (w *ServerInterfaceWrapper) UploadProfileImage(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(TokenScopes, []string{""})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.UploadProfileImage(ctx)
 	return err
 }
 
@@ -511,6 +558,8 @@ func (w *ServerInterfaceWrapper) GetUserIdBookmark(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetUserIdBookmark(ctx, id)
@@ -527,6 +576,8 @@ func (w *ServerInterfaceWrapper) PostUserIdBookmark(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.PostUserIdBookmark(ctx, id)
@@ -552,6 +603,8 @@ func (w *ServerInterfaceWrapper) DeleteUserIdBookmarkCommunityId(ctx echo.Contex
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter community_id: %s", err))
 	}
 
+	ctx.Set(TokenScopes, []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.DeleteUserIdBookmarkCommunityId(ctx, id, communityId)
 	return err
@@ -567,6 +620,8 @@ func (w *ServerInterfaceWrapper) ListUserCommunities(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(TokenScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params ListUserCommunitiesParams
@@ -622,6 +677,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/restaurant/search", wrapper.SearchRestaurants)
 	router.POST(baseURL+"/user", wrapper.NewUser)
 	router.GET(baseURL+"/user/me", wrapper.GetMyProfile)
+	router.POST(baseURL+"/user/profile", wrapper.UploadProfileImage)
 	router.GET(baseURL+"/user/:id/bookmark", wrapper.GetUserIdBookmark)
 	router.POST(baseURL+"/user/:id/bookmark", wrapper.PostUserIdBookmark)
 	router.DELETE(baseURL+"/user/:id/bookmark/:community_id", wrapper.DeleteUserIdBookmarkCommunityId)
@@ -632,39 +688,41 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
