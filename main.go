@@ -36,8 +36,13 @@ func main() {
 	}()
 
 	// DB migration
+	err = database.Migrate(db, ".")
+	if err != nil {
+		e.Logger.Errorf("Database migration failed: %v", err)
+		return
+	}
 
-	// register repositories
+	// TODO: register repositories
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, conf)
