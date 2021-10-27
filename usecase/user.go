@@ -77,8 +77,6 @@ func (u *UserUseCase) UpdateUserProfileImage(ctx context.Context, userId int64, 
 }
 
 func (u *UserUseCase) NewUser(ctx context.Context, name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error) {
-	// TODO: update id, save user info
-
 	user, err := u.userRepo.NewUser(ctx, name)
 	if err != nil {
 		return nil, nil, xerrors.Errorf("failed to create user to database: %w", err)
