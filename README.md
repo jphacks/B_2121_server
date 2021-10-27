@@ -65,3 +65,12 @@
 [client side Wiki](https://github.com/jphacks/B_2121_client/wiki)  
 
 - サーバーサイドの docker image は https://hub.docker.com/r/kmconner/goyotashi/ から参照できる
+
+### DB
+
+- マイグレーションはgolang-migrateを使用している。
+  - `migrate create -ext sql -dir migrations [migration name]`で新しいマイグレーションファイルを追加
+  - サーバーの起動時に自動でマイグレーションされる
+- `models_gen`はSQLBoilerで生成している
+  - `docker compose up`でサーバーとMySQLをローカルで起動する
+  - `sqlboiler mysql`で`models_gen`を生成する

@@ -1,0 +1,11 @@
+pkgname = "models_gen"
+output = "models_gen"
+no-tests = "true"
+
+[mysql]
+dbname = "goyotashi"
+host = "localhost"
+port = 3306
+user = "goyotashi"
+pass = "password"
+sslmode = "false"
