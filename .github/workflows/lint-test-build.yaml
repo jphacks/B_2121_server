@@ -1,4 +1,4 @@
-name: Lint, Test and Build
+name: Lint, Test, Build and Deploy
 on:
   push:
 
@@ -56,3 +56,23 @@ jobs:
         with:
           push: true
           tags: kmconner/goyotashi:latest
+  deploy:
+    name: Deploy to server
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          name: id_ed25519
+          known_hosts: ${{ secrets.SERVER_KNOWN_HOSTS }}
+      - name: Setup docker context
+        run: |
+          docker context create --default-stack-orchestrator=swarm --docker "host=ssh://${{ secrets.SERVER_SSH_USER }}@${{ secrets.SERVER_SSH_HOST }}:${{ secrets.SERVER_SSH_PORT }}" prod
+          docker context use prod
+      - name: Check out
+        uses: actions/checkout@v2.3.5
+      - name: Deploy
+        run: |
+          docker-compose -f docker-compose.yaml pull
+          docker-compose -f docker-compose.yaml up --force-recreate -d
