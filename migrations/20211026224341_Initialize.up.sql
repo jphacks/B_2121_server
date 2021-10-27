@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS `restaurants`
     `source`     VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元',
     `source_id`  VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元のレストランID',
     `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `updated_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE `u_source_source_id` (source, source_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin;

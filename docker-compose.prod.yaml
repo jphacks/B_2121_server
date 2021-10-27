@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  server_app:
+    container_name: goyotashi-server
+    image: kmconner/goyotashi:latest
+    networks:
+      - caddy
+    restart: always
+networks:
+  caddy:
+    external: true
