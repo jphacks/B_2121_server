@@ -2,11 +2,9 @@ package api
 
 import (
 	"database/sql"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/jphacks/B_2121_server/openapi"
-	"github.com/jphacks/B_2121_server/session"
 	"github.com/jphacks/B_2121_server/usecase"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/xerrors"
@@ -22,23 +20,6 @@ func NewHandler(userUseCase usecase.UserUseCase, communityUseCase usecase.Commun
 type handler struct {
 	userUseCase      usecase.UserUseCase
 	communityUseCase usecase.CommunityUseCase
-}
-
-func (h handler) UploadProfileImage(ctx echo.Context) error {
-	info := session.GetAuthInfo(ctx)
-	if !info.Authenticated {
-		return echo.ErrUnauthorized
-	}
-	userId := info.UserId
-	data, err := ioutil.ReadAll(ctx.Request().Body)
-	if err != nil {
-		return err
-	}
-	prof, err := h.userUseCase.UpdateUserProfileImage(userId, data)
-	if err != nil {
-		return err
-	}
-	return ctx.JSON(http.StatusOK, prof)
 }
 
 func (h handler) NewCommunity(ctx echo.Context) error {

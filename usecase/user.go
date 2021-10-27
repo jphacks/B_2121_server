@@ -33,24 +33,24 @@ type UserUseCase struct {
 	userRepo       models.UserRepository
 }
 
-func (u *UserUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (usr *models.User, e error) {
+func (u *UserUseCase) UpdateUserProfileImage(ctx context.Context, userId int64, imageData []byte) (imageUrl string, e error) {
 	imageId, err := uuid.DefaultGenerator.NewV4()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to generate uuid: %w", err)
+		return "", xerrors.Errorf("failed to generate uuid: %w", err)
 	}
 	physicalPath := path.Join(u.imageStorePath, imageId.String()+".jpg")
 	img, err := images.LoadImage(bytes.NewReader(imageData))
 	if err != nil {
-		return nil, xerrors.Errorf("failed to load image: %w", err)
+		return "", xerrors.Errorf("failed to load image: %w", err)
 	}
 	img, err = img.CropToSquare()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to crop image: %w", err)
+		return "", xerrors.Errorf("failed to crop image: %w", err)
 	}
 	img = img.ResizeToSquare(profileImageSize)
 	file, err := os.Create(physicalPath)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to create image file: %w", err)
+		return "", xerrors.Errorf("failed to create image file: %w", err)
 	}
 	defer func() {
 		e1 := file.Close()
@@ -60,21 +60,20 @@ func (u *UserUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (us
 	}()
 	err = img.Save(file)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to save image: %w", err)
+		return "", xerrors.Errorf("failed to save image: %w", err)
 	}
 	baseUrl, err := url.Parse(u.imageUrlBase)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to load base url: %w", err)
+		return "", xerrors.Errorf("failed to load base url: %w", err)
 	}
 	baseUrl.Path = path.Join(baseUrl.Path, path.Base(physicalPath))
 
-	// TODO: Update database record
+	err = u.userRepo.UpdateProfileImage(ctx, userId, path.Base(physicalPath))
+	if err != nil {
+		return "", xerrors.Errorf("failed to update data in db: %w", err)
+	}
 
-	return &models.User{
-		Id:              userId,
-		Name:            "", // TODO: Retrieve from database
-		ProfileImageUrl: baseUrl.String(),
-	}, nil
+	return baseUrl.String(), nil
 }
 
 func (u *UserUseCase) NewUser(ctx context.Context, name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error) {

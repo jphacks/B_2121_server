@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/models_gen"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"golang.org/x/xerrors"
 )
 
@@ -64,6 +65,19 @@ func (u userRepository) NewUser(ctx context.Context, userName string) (*models.U
 		Id:   id,
 		Name: userName,
 	}, nil
+}
+
+func (u userRepository) UpdateProfileImage(ctx context.Context, userId int64, fileName string) error {
+	user, err := models_gen.FindUser(ctx, u.db, userId)
+	if err != nil {
+		return xerrors.Errorf("failed to find a user by ID: %w", err)
+	}
+	user.ProfileImageFile.SetValid(fileName)
+	_, err = user.Update(ctx, u.db, boil.Infer())
+	if err != nil {
+		return xerrors.Errorf("failed to update database: %w", err)
+	}
+	return nil
 }
 
 func fromGenUser(u *models_gen.User, imageUrlBase url.URL) *models.User {

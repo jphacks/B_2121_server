@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/jphacks/B_2121_server/models"
@@ -46,4 +47,21 @@ func (h handler) GetMyProfile(ctx echo.Context) error {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, userDetail.ToOpenApi())
+}
+
+func (h handler) UploadProfileImage(ctx echo.Context) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+	data, err := ioutil.ReadAll(ctx.Request().Body)
+	if err != nil {
+		return err
+	}
+	imgUrl, err := h.userUseCase.UpdateUserProfileImage(ctx.Request().Context(), userId, data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, openapi.UploadImageProfileResponse{ImageUrl: imgUrl})
 }
