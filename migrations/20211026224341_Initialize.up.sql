@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `communities`
     `name`        VARCHAR(255) NOT NULL,
     `description` VARCHAR(511) NOT NULL,
     `location`    GEOMETRY,
+    `image_file`  VARCHAR(255) NOT NULL COMMENT '画像のファイル名',
     `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB
@@ -16,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `restaurants`
     `name`       VARCHAR(255) NOT NULL,
     `location`   GEOMETRY,
     `url`        VARCHAR(255) NOT NULL,
-    `image_url`  VARCHAR(255),
+    `image_url`  VARCHAR(255) COMMENT '画像のURL',
     `source`     VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元',
     `source_id`  VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元のレストランID',
     `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -40,11 +41,11 @@ CREATE TABLE IF NOT EXISTS `communities_restaurants`
 
 CREATE TABLE IF NOT EXISTS `users`
 (
-    `id`                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    `name`              VARCHAR(255) NOT NULL,
-    `profile_image_url` VARCHAR(511),
-    `created_at`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `id`                 BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `name`               VARCHAR(255) NOT NULL,
+    `profile_image_file` VARCHAR(511) COMMENT 'プロフィール画像のファイル名',
+    `created_at`         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin;
