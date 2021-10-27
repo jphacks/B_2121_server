@@ -20,6 +20,10 @@ type handler struct {
 	userUseCase usecase.UserUseCase
 }
 
+func (h handler) UploadProfileImage(ctx echo.Context) error {
+	panic("implement me")
+}
+
 func (h handler) NewCommunity(ctx echo.Context) error {
 	panic("implement me")
 }
