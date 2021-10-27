@@ -19,6 +19,7 @@ RUN apk add --no-cache bash ca-certificates curl
 
 COPY --from=build-env /app/B_2121_server /B_2121_server
 RUN chmod a+x /B_2121_server
+RUN mkdir profileImages
 
 EXPOSE 8080
 CMD ["/B_2121_server"]
