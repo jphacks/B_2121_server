@@ -44,6 +44,7 @@ func New(host string, port uint16, dbName string, user string, password string, 
 		if err == nil {
 			break
 		}
+		println(err)
 		if i == retryMax-1 {
 			return nil, xerrors.Errorf("failed to connect to database: %w", err)
 		}
