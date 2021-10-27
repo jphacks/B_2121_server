@@ -28,5 +28,6 @@ func main() {
 	})
 	e.GET("/spec", api.GetSwaggerSpec)
 	e.GET("/swagger/*", swaggerHandler)
+	e.Static("/images","./profileImages/")
 	e.Logger.Fatal(e.Start(fmt.Sprintf("0.0.0.0:%d", 8080)))
 }
