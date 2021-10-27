@@ -21,6 +21,7 @@ func New(host string, port uint16, dbName string, user string, password string, 
 	mysqlCfg.DBName = dbName
 	mysqlCfg.ParseTime = true
 	mysqlCfg.ClientFoundRows = true
+	mysqlCfg.MultiStatements = true
 	mysqlCfg.Params = map[string]string{
 		"charset": "utf8mb4",
 	}

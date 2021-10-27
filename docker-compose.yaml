@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     volumes:
       - profile_images:/profileImages/
+      - ./migrations:/migrations
   mysql:
     image: mysql:8.0
     container_name: goyotashi-mysql
