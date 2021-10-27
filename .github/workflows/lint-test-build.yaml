@@ -58,7 +58,7 @@ jobs:
           tags: kmconner/goyotashi:latest
   mysql:
     name: Build & push MySQL image
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -95,6 +95,9 @@ jobs:
         run: |
           docker-compose -f docker-compose.prod.yaml pull
           docker-compose -f docker-compose.prod.yaml up --force-recreate -d
+        env:
+          DB_USER: ${{ secrets.MYSQL_USER }}
+          DB_PASSWORD: ${{ secrets.MYSQL_PASS }}
       - name: Notify to Slack
         uses: craftech-io/slack-action@v1
         with:
