@@ -39,7 +39,7 @@ jobs:
         run: go test -v ./...
   docker:
     name: Build & push docker image
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     needs:
       - lint
@@ -58,7 +58,7 @@ jobs:
           tags: kmconner/goyotashi:latest
   mysql:
     name: Build & push MySQL image
-#    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
