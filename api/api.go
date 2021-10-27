@@ -11,9 +11,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewHandler(sessionStore session.Store) openapi.ServerInterface {
+func NewHandler(userUseCase usecase.UserUseCase) openapi.ServerInterface {
 	return &handler{
-		userUseCase: usecase.NewUserUseCase(sessionStore),
+		userUseCase: userUseCase,
 	}
 }
 

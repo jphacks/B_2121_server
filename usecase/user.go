@@ -2,10 +2,12 @@ package usecase
 
 import (
 	"bytes"
+	"net/url"
 	"os"
 	"path"
 
 	"github.com/gofrs/uuid"
+	"github.com/jphacks/B_2121_server/config"
 	"github.com/jphacks/B_2121_server/images"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/session"
@@ -20,11 +22,10 @@ type UserUseCase interface {
 	UpdateUserProfileImage(userId int64, imageData []byte) (*models.User, error)
 }
 
-func NewUserUseCase(store session.Store) UserUseCase {
+func NewUserUseCase(store session.Store, config *config.ServerConfig) UserUseCase {
 	return &userUseCase{
-		// TODO: Configurable !!!!
 		imageStorePath: "./profileImages/",
-		imageUrlBase:   "http://localhost:8080/images/",
+		imageUrlBase:   config.ProfileImageBaseUrl,
 		sessionStore:   store,
 	}
 }
@@ -64,13 +65,18 @@ func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (us
 	if err != nil {
 		return nil, xerrors.Errorf("failed to save image: %w", err)
 	}
+	baseUrl, err := url.Parse(u.imageUrlBase)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load base url: %w", err)
+	}
+	baseUrl.Path = path.Join(baseUrl.Path, path.Base(physicalPath))
 
 	// TODO: Update database record
 
 	return &models.User{
 		Id:              userId,
 		Name:            "", // TODO: Retrieve from database
-		ProfileImageUrl: u.imageUrlBase + path.Base(physicalPath),
+		ProfileImageUrl: baseUrl.String(),
 	}, nil
 }
 
