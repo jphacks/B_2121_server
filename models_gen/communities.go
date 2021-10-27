@@ -24,10 +24,11 @@ import (
 
 // Community is an object representing the database table.
 type Community struct {
-	ID          int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Name        string      `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Description string      `boil:"description" json:"description" toml:"description" yaml:"description"`
-	Location    null.String `boil:"location" json:"location,omitempty" toml:"location" yaml:"location,omitempty"`
+	ID          int64        `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Name        string       `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Description string       `boil:"description" json:"description" toml:"description" yaml:"description"`
+	Latitude    null.Float64 `boil:"latitude" json:"latitude,omitempty" toml:"latitude" yaml:"latitude,omitempty"`
+	Longitude   null.Float64 `boil:"longitude" json:"longitude,omitempty" toml:"longitude" yaml:"longitude,omitempty"`
 	// 画像のファイル名
 	ImageFile string    `boil:"image_file" json:"image_file" toml:"image_file" yaml:"image_file"`
 	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
@@ -41,7 +42,8 @@ var CommunityColumns = struct {
 	ID          string
 	Name        string
 	Description string
-	Location    string
+	Latitude    string
+	Longitude   string
 	ImageFile   string
 	CreatedAt   string
 	UpdatedAt   string
@@ -49,7 +51,8 @@ var CommunityColumns = struct {
 	ID:          "id",
 	Name:        "name",
 	Description: "description",
-	Location:    "location",
+	Latitude:    "latitude",
+	Longitude:   "longitude",
 	ImageFile:   "image_file",
 	CreatedAt:   "created_at",
 	UpdatedAt:   "updated_at",
@@ -59,7 +62,8 @@ var CommunityTableColumns = struct {
 	ID          string
 	Name        string
 	Description string
-	Location    string
+	Latitude    string
+	Longitude   string
 	ImageFile   string
 	CreatedAt   string
 	UpdatedAt   string
@@ -67,7 +71,8 @@ var CommunityTableColumns = struct {
 	ID:          "communities.id",
 	Name:        "communities.name",
 	Description: "communities.description",
-	Location:    "communities.location",
+	Latitude:    "communities.latitude",
+	Longitude:   "communities.longitude",
 	ImageFile:   "communities.image_file",
 	CreatedAt:   "communities.created_at",
 	UpdatedAt:   "communities.updated_at",
@@ -75,35 +80,36 @@ var CommunityTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_String struct{ field string }
+type whereHelpernull_Float64 struct{ field string }
 
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+func (w whereHelpernull_Float64) EQ(x null.Float64) qm.QueryMod {
 	return qmhelper.WhereNullEQ(w.field, false, x)
 }
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+func (w whereHelpernull_Float64) NEQ(x null.Float64) qm.QueryMod {
 	return qmhelper.WhereNullEQ(w.field, true, x)
 }
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+func (w whereHelpernull_Float64) LT(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+func (w whereHelpernull_Float64) LTE(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+func (w whereHelpernull_Float64) GT(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+func (w whereHelpernull_Float64) GTE(x null.Float64) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_Float64) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Float64) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 var CommunityWhere = struct {
 	ID          whereHelperint64
 	Name        whereHelperstring
 	Description whereHelperstring
-	Location    whereHelpernull_String
+	Latitude    whereHelpernull_Float64
+	Longitude   whereHelpernull_Float64
 	ImageFile   whereHelperstring
 	CreatedAt   whereHelpertime_Time
 	UpdatedAt   whereHelpertime_Time
@@ -111,7 +117,8 @@ var CommunityWhere = struct {
 	ID:          whereHelperint64{field: "`communities`.`id`"},
 	Name:        whereHelperstring{field: "`communities`.`name`"},
 	Description: whereHelperstring{field: "`communities`.`description`"},
-	Location:    whereHelpernull_String{field: "`communities`.`location`"},
+	Latitude:    whereHelpernull_Float64{field: "`communities`.`latitude`"},
+	Longitude:   whereHelpernull_Float64{field: "`communities`.`longitude`"},
 	ImageFile:   whereHelperstring{field: "`communities`.`image_file`"},
 	CreatedAt:   whereHelpertime_Time{field: "`communities`.`created_at`"},
 	UpdatedAt:   whereHelpertime_Time{field: "`communities`.`updated_at`"},
@@ -147,8 +154,8 @@ func (*communityR) NewStruct() *communityR {
 type communityL struct{}
 
 var (
-	communityAllColumns            = []string{"id", "name", "description", "location", "image_file", "created_at", "updated_at"}
-	communityColumnsWithoutDefault = []string{"name", "description", "location", "image_file"}
+	communityAllColumns            = []string{"id", "name", "description", "latitude", "longitude", "image_file", "created_at", "updated_at"}
+	communityColumnsWithoutDefault = []string{"name", "description", "latitude", "longitude", "image_file"}
 	communityColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
 	communityPrimaryKeyColumns     = []string{"id"}
 )

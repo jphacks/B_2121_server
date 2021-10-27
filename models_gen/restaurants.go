@@ -24,9 +24,10 @@ import (
 
 // Restaurant is an object representing the database table.
 type Restaurant struct {
-	ID       int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Name     string      `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Location null.String `boil:"location" json:"location,omitempty" toml:"location" yaml:"location,omitempty"`
+	ID        int64        `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Name      string       `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Latitude  null.Float64 `boil:"latitude" json:"latitude,omitempty" toml:"latitude" yaml:"latitude,omitempty"`
+	Longitude null.Float64 `boil:"longitude" json:"longitude,omitempty" toml:"longitude" yaml:"longitude,omitempty"`
 	// 住所
 	Address string `boil:"address" json:"address" toml:"address" yaml:"address"`
 	// レストラン情報の取得元のレストランのURL
@@ -47,7 +48,8 @@ type Restaurant struct {
 var RestaurantColumns = struct {
 	ID        string
 	Name      string
-	Location  string
+	Latitude  string
+	Longitude string
 	Address   string
 	URL       string
 	ImageURL  string
@@ -58,7 +60,8 @@ var RestaurantColumns = struct {
 }{
 	ID:        "id",
 	Name:      "name",
-	Location:  "location",
+	Latitude:  "latitude",
+	Longitude: "longitude",
 	Address:   "address",
 	URL:       "url",
 	ImageURL:  "image_url",
@@ -71,7 +74,8 @@ var RestaurantColumns = struct {
 var RestaurantTableColumns = struct {
 	ID        string
 	Name      string
-	Location  string
+	Latitude  string
+	Longitude string
 	Address   string
 	URL       string
 	ImageURL  string
@@ -82,7 +86,8 @@ var RestaurantTableColumns = struct {
 }{
 	ID:        "restaurants.id",
 	Name:      "restaurants.name",
-	Location:  "restaurants.location",
+	Latitude:  "restaurants.latitude",
+	Longitude: "restaurants.longitude",
 	Address:   "restaurants.address",
 	URL:       "restaurants.url",
 	ImageURL:  "restaurants.image_url",
@@ -94,10 +99,35 @@ var RestaurantTableColumns = struct {
 
 // Generated where
 
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var RestaurantWhere = struct {
 	ID        whereHelperint64
 	Name      whereHelperstring
-	Location  whereHelpernull_String
+	Latitude  whereHelpernull_Float64
+	Longitude whereHelpernull_Float64
 	Address   whereHelperstring
 	URL       whereHelperstring
 	ImageURL  whereHelpernull_String
@@ -108,7 +138,8 @@ var RestaurantWhere = struct {
 }{
 	ID:        whereHelperint64{field: "`restaurants`.`id`"},
 	Name:      whereHelperstring{field: "`restaurants`.`name`"},
-	Location:  whereHelpernull_String{field: "`restaurants`.`location`"},
+	Latitude:  whereHelpernull_Float64{field: "`restaurants`.`latitude`"},
+	Longitude: whereHelpernull_Float64{field: "`restaurants`.`longitude`"},
 	Address:   whereHelperstring{field: "`restaurants`.`address`"},
 	URL:       whereHelperstring{field: "`restaurants`.`url`"},
 	ImageURL:  whereHelpernull_String{field: "`restaurants`.`image_url`"},
@@ -142,8 +173,8 @@ func (*restaurantR) NewStruct() *restaurantR {
 type restaurantL struct{}
 
 var (
-	restaurantAllColumns            = []string{"id", "name", "location", "address", "url", "image_url", "source", "source_id", "created_at", "updated_at"}
-	restaurantColumnsWithoutDefault = []string{"name", "location", "address", "url", "image_url", "source", "source_id"}
+	restaurantAllColumns            = []string{"id", "name", "latitude", "longitude", "address", "url", "image_url", "source", "source_id", "created_at", "updated_at"}
+	restaurantColumnsWithoutDefault = []string{"name", "latitude", "longitude", "address", "url", "image_url", "source", "source_id"}
 	restaurantColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
 	restaurantPrimaryKeyColumns     = []string{"id"}
 )
