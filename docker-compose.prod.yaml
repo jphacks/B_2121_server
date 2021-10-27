@@ -5,6 +5,7 @@ services:
     image: kmconner/goyotashi:latest
     networks:
       - caddy
+    restart: always
 networks:
   caddy:
     external: true
