@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/jphacks/B_2121_server/models"
-	"github.com/jphacks/B_2121_server/models_gen"
 	"github.com/jphacks/B_2121_server/session"
 )
 
@@ -17,6 +16,6 @@ func NewCommunityUseCase(store session.Store) *CommunityUseCase {
 	return &CommunityUseCase{sessionStore: store}
 }
 
-func (u *CommunityUseCase) GetCommunity(ctx context.Context, id int64) (*models_gen.Community, error) {
+func (u *CommunityUseCase) GetCommunity(ctx context.Context, id int64) (*models.CommunityDetail, error) {
 	return u.communityRepository.GetCommunityByID(ctx, id)
 }

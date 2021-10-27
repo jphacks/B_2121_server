@@ -59,20 +59,7 @@ func (h handler) GetCommunityById(ctx echo.Context, id int) error {
 		return err
 	}
 
-	//TODO: set Location, NumRestaurant and UserCount
-	return ctx.JSON(http.StatusOK, openapi.CommunityDetail{
-		Community: openapi.Community{
-			Description: &community.Description,
-			Id:          openapi.Long(community.ID),
-			Location: &openapi.Location{
-				Lat: 0,
-				Lng: 0,
-			},
-			Name: community.Name,
-		},
-		NumRestaurant: nil,
-		UserCount:     0,
-	})
+	return ctx.JSON(http.StatusOK, community.ToOpenApiCommunityDetail())
 }
 
 func (h handler) ListCommunityRestaurants(ctx echo.Context, id int, params openapi.ListCommunityRestaurantsParams) error {

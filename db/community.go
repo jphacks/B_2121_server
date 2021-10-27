@@ -17,11 +17,12 @@ func NewCommunityRepository(db *sqlx.DB) models.CommunityRepository {
 	return &communityRepository{db}
 }
 
-func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*models_gen.Community, error) {
-	community, err := models_gen.FindCommunity(ctx, c.db, id)
+func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*models.CommunityDetail, error) {
+	_, err := models_gen.FindCommunity(ctx, c.db, id)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to find a community by ID: %w", err)
 	}
 
-	return community, nil
+	//TODO: impl
+	return &models.CommunityDetail{}, nil
 }
