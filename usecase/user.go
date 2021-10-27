@@ -35,7 +35,7 @@ type userUseCase struct {
 	sessionStore   session.Store
 }
 
-func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (*models.User, error) {
+func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (usr *models.User, e error) {
 	imageId, err := uuid.DefaultGenerator.NewV4()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to generate uuid: %w", err)
@@ -55,12 +55,15 @@ func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (*m
 		return nil, xerrors.Errorf("failed to create image file: %w", err)
 	}
 	defer func() {
-		e := file.Close()
-		if e != nil {
-			println(e)
+		e1 := file.Close()
+		if e1 != nil {
+			e = xerrors.Errorf("failed to close file: %w")
 		}
 	}()
 	err = img.Save(file)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to save image: %w", err)
+	}
 
 	// TODO: Update database record
 
