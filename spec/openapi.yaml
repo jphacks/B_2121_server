@@ -8,6 +8,8 @@ servers:
     description: Local test server
   - url: https://api.goyotashi.kmconner.net
     description: production server
+security:
+  - token: []
 paths:
   '/community/{id}':
     get:
@@ -639,3 +641,8 @@ components:
       properties:
         imageUrl:
           type: string
+  securitySchemes:
+    token:
+      type: apiKey
+      in: header
+      name: Authorization
