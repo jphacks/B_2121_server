@@ -5,6 +5,7 @@ services:
     image: kmconner/goyotashi:latest
     networks:
       - caddy
+      - default
     restart: always
     volumes:
       - profile_images:/profileImages/
@@ -18,6 +19,8 @@ services:
     restart: always
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - default
 volumes:
   profile_images:
   mysql_data:
@@ -25,3 +28,4 @@ volumes:
 networks:
   caddy:
     external: true
+  default:
