@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS `restaurants`
     `location`   GEOMETRY,
     `url`        VARCHAR(255) NOT NULL,
     `image_url`  VARCHAR(255),
+    `source`     VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元',
+    `source_id`  VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元のレストランID',
     `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB
