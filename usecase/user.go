@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"bytes"
+	"context"
 	"net/url"
 	"os"
 	"path"
@@ -16,27 +17,23 @@ import (
 
 const profileImageSize = 400
 
-type UserUseCase interface {
-	NewUser(name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error)
-	MyUser(userId int64) (*models.UserDetail, error)
-	UpdateUserProfileImage(userId int64, imageData []byte) (*models.User, error)
-}
-
-func NewUserUseCase(store session.Store, config *config.ServerConfig) UserUseCase {
-	return &userUseCase{
+func NewUserUseCase(store session.Store, userRepo models.UserRepository, config *config.ServerConfig) UserUseCase {
+	return UserUseCase{
 		imageStorePath: "./profileImages/",
 		imageUrlBase:   config.ProfileImageBaseUrl,
 		sessionStore:   store,
+		userRepo:       userRepo,
 	}
 }
 
-type userUseCase struct {
+type UserUseCase struct {
 	imageStorePath string
 	imageUrlBase   string
 	sessionStore   session.Store
+	userRepo       models.UserRepository
 }
 
-func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (usr *models.User, e error) {
+func (u *UserUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (usr *models.User, e error) {
 	imageId, err := uuid.DefaultGenerator.NewV4()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to generate uuid: %w", err)
@@ -80,15 +77,15 @@ func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (us
 	}, nil
 }
 
-func (u *userUseCase) NewUser(name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error) {
+func (u *UserUseCase) NewUser(ctx context.Context, name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error) {
 	// TODO: update id, save user info
-	var userId int64 = 1
-	user := &models.User{
-		Id:              userId,
-		Name:            name,
-		ProfileImageUrl: "",
+
+	user, err := u.userRepo.NewUser(ctx, name)
+	if err != nil {
+		return nil, nil, xerrors.Errorf("failed to create user to database: %w", err)
 	}
-	token, err := u.sessionStore.New(userId)
+
+	token, err := u.sessionStore.New(user.Id)
 	if err != nil {
 		return nil, nil, xerrors.Errorf("failed to create a new session: %w", err)
 	}
@@ -99,14 +96,14 @@ func (u *userUseCase) NewUser(name string, authVendor models.AuthVendor) (*model
 	return user, authInfo, nil
 }
 
-func (u *userUseCase) MyUser(userId int64) (*models.UserDetail, error) {
-	// TODO: This is a test implementation !!!
-	return &models.UserDetail{
-		User: models.User{
-			Name: "your name",
-			Id:   userId,
-		},
-		BookmarkCount:  0,
-		CommunityCount: 0,
-	}, nil
+func (u *UserUseCase) MyUser(ctx context.Context, userId int64) (*models.UserDetail, error) {
+	baseUrl, err := url.Parse(u.imageUrlBase)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load base url: %w", err)
+	}
+	user, err := u.userRepo.GetUserDetailById(ctx, userId, *baseUrl)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get user detail: %w", err)
+	}
+	return user, nil
 }
