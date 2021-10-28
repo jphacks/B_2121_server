@@ -17,3 +17,6 @@ func (r *Restaurant) ToOpenApiRestaurant() *openapi.Restaurant {
 		Name:     r.Name,
 	}
 }
+
+type RestaurantRepository interface {
+}

@@ -5,6 +5,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (h handler) GetRestaurantId(ctx echo.Context, id int64) error {
+	panic("implement me")
+}
+
 func (h handler) AddRestaurantToCommunity(ctx echo.Context, id int) error {
 	panic("implement me")
 }

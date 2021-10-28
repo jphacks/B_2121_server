@@ -6,16 +6,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewHandler(userUseCase usecase.UserUseCase, communityUseCase usecase.CommunityUseCase) openapi.ServerInterface {
+func NewHandler(userUseCase usecase.UserUseCase, communityUseCase usecase.CommunityUseCase, restaurantUseCase usecase.RestaurantUseCase) openapi.ServerInterface {
 	return &handler{
-		userUseCase:      userUseCase,
-		communityUseCase: communityUseCase,
+		userUseCase:       userUseCase,
+		communityUseCase:  communityUseCase,
+		restaurantUseCase: restaurantUseCase,
 	}
 }
 
 type handler struct {
-	userUseCase      usecase.UserUseCase
-	communityUseCase usecase.CommunityUseCase
+	userUseCase       usecase.UserUseCase
+	communityUseCase  usecase.CommunityUseCase
+	restaurantUseCase usecase.RestaurantUseCase
 }
 
 func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
