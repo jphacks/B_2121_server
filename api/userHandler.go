@@ -116,7 +116,7 @@ func (h handler) DeleteUserIdCommunitiesCommunityId(ctx echo.Context, id openapi
 	userId := info.UserId
 
 	if userId != int64(id) {
-		return echo.ErrUnauthorized
+		return echo.ErrForbidden
 	}
 
 	err := h.userUseCase.LeaveCommunity(ctx.Request().Context(), userId, int64(communityId))

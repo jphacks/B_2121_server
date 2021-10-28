@@ -7,8 +7,6 @@ services:
     volumes:
       - profile_images:/profileImages/
       - ./migrations:/migrations
-    environment:
-      - HOTPEPPER_KEY=hoge
   mysql:
     image: mysql:8.0
     container_name: goyotashi-mysql

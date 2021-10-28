@@ -18,14 +18,11 @@ func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 	userId := info.UserId
 
 	if int64(id) != userId {
-		return echo.ErrUnauthorized
+		return echo.ErrForbidden
 	}
 
 	bookmarks, err := h.bookmarkUseCase.ListBookmark(ctx.Request().Context(), int64(id))
 	if err != nil {
-		if xerrors.Is(err, sql.ErrNoRows) {
-			return echo.ErrNotFound
-		}
 		return err
 	}
 
@@ -48,7 +45,7 @@ func (h handler) PostUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 	userId := info.UserId
 
 	if int64(id) != userId {
-		return echo.ErrUnauthorized
+		return echo.ErrForbidden
 	}
 
 	var req openapi.PostUserIdBookmarkJSONRequestBody
@@ -75,7 +72,7 @@ func (h handler) DeleteUserIdBookmarkCommunityId(ctx echo.Context, id openapi.Lo
 	userId := info.UserId
 
 	if int64(id) != userId {
-		return echo.ErrUnauthorized
+		return echo.ErrForbidden
 	}
 
 	err := h.bookmarkUseCase.DeleteBookmark(ctx.Request().Context(), userId, int64(communityId))
