@@ -21,7 +21,7 @@ type CommunityRepository interface {
 	GetCommunityByID(ctx context.Context, id int64) (*CommunityDetail, error)
 }
 
-func (c *CommunityDetail) ToOpenApiCommunityDetail() *openapi.CommunityDetail {
+func (c *Community) ToOpenApiCommunity() *openapi.Community {
 	var loc *openapi.Location
 	if c.Latitude.Valid && c.Longitude.Valid {
 		loc = &openapi.Location{
@@ -29,14 +29,18 @@ func (c *CommunityDetail) ToOpenApiCommunityDetail() *openapi.CommunityDetail {
 			Lng: c.Longitude.Float64,
 		}
 	}
+	return &openapi.Community{
+		Description: &c.Description,
+		Id:          openapi.Long(c.ID),
+		Location:    loc,
+		Name:        c.Name,
+	}
+}
 
+func (c *CommunityDetail) ToOpenApiCommunityDetail() *openapi.CommunityDetail {
+	comm := c.ToOpenApiCommunity()
 	return &openapi.CommunityDetail{
-		Community: openapi.Community{
-			Description: &c.Description,
-			Id:          openapi.Long(c.ID),
-			Location:    loc,
-			Name:        c.Name,
-		},
+		Community:     *comm,
 		NumRestaurant: &c.NumRestaurant,
 		UserCount:     c.UserCount,
 	}

@@ -1,6 +1,11 @@
 package models
 
-import "github.com/jphacks/B_2121_server/openapi"
+import (
+	"context"
+	"net/url"
+
+	"github.com/jphacks/B_2121_server/openapi"
+)
 
 type User struct {
 	Id              int64
@@ -28,4 +33,12 @@ func (u *UserDetail) ToOpenApi() *openapi.UserDetail {
 		BookmarkCount:  u.BookmarkCount,
 		CommunityCount: u.CommunityCount,
 	}
+}
+
+type UserRepository interface {
+	GetUserById(ctx context.Context, id int64, profileImageBase url.URL) (*User, error)
+	NewUser(ctx context.Context, userName string) (*User, error)
+	GetUserDetailById(ctx context.Context, id int64, profileImageBase url.URL) (*UserDetail, error)
+	UpdateProfileImage(ctx context.Context, userId int64, fileName string) error
+	ListUserCommunity(ctx context.Context, userId int64) ([]*Community, error)
 }

@@ -44,9 +44,10 @@ func main() {
 
 	// register repositories
 	communityRepository := database.NewCommunityRepository(db)
+	userRepository := database.NewUserRepository(db)
 
 	store := session.NewStore("key")
-	userUseCase := usecase.NewUserUseCase(store, conf)
+	userUseCase := usecase.NewUserUseCase(store, userRepository, conf)
 	communityUseCase := usecase.NewCommunityUseCase(store, communityRepository)
 	handler := api.NewHandler(userUseCase, communityUseCase)
 	e.Use(middleware.Logger())
