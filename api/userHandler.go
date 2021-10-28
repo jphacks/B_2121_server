@@ -82,14 +82,25 @@ func (h handler) ListUserCommunities(ctx echo.Context, id openapi.Long, params o
 	})
 }
 
-// PostUserIdCommunities - Join a community
-func (h handler) PostUserIdCommunities(ctx echo.Context, id openapi.Long) error {
-	var req openapi.PostUserIdCommunitiesJSONRequestBody
+// PostUserMeCommunities - Join community
+func (h handler) PostUserMeCommunities(ctx echo.Context) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+
+	var req openapi.PostUserMeCommunitiesJSONRequestBody
 	err := ctx.Bind(&req)
 	if err != nil {
 		ctx.Logger().Errorf("failed to bind request: %v", err)
 		return echo.ErrBadRequest
 	}
 
-	return nil
+	err = h.userUseCase.JoinCommunity(ctx.Request().Context(), userId, int64(req.CommunityId))
+	if err != nil {
+		return err
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
 }
