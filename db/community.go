@@ -60,7 +60,6 @@ func (c *communityRepository) NewCommunity(ctx context.Context, name string, des
 }
 
 func (c *communityRepository) SearchCommunity(ctx context.Context, keyword string) ([]*models.Community, error) {
-	//comm := make([]models_gen.Community, 0)
 	query := "%" + keyword + "%"
 	comm, err := models_gen.Communities(qm.Where("name LIKE ? OR description LIKE ?", query, query)).All(ctx, c.db) // c.db.SelectContext(ctx, &comm, "SELECT * FROM communities WHERE name LIKE ? OR description LIKE ?", query, query)
 	if err != nil {
