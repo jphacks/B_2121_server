@@ -496,8 +496,8 @@ components:
           maximum: 180
           description: longitude
       example:
-        lng: 35.02488258885156
-        lat: 135.77692591466467
+        lat: 35.02488258885156
+        lng: 135.77692591466467
     community:
       type: object
       description: Goyotashi community
