@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jphacks/B_2121_server/models"
@@ -45,6 +46,40 @@ func (b *bookmarkRepository) CreateBookmark(ctx context.Context, userId, communi
 		return xerrors.New("rows affected is not 1")
 	}
 
+	return nil
+}
+
+func (b *bookmarkRepository) DeleteBookmark(ctx context.Context, userId int64, communityId int64) error {
+	tx, err := b.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	bm, err := models_gen.Bookmarks(qm.Where("user_id = ?", userId), qm.And("community_id = ?", communityId)).One(ctx, tx)
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return xerrors.Errorf("affiliation not found: %w", err)
+		}
+		return err
+	}
+
+	rowsAffected, err := bm.Delete(ctx, tx)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return xerrors.Errorf("failed to get row affected: %w", err)
+	}
+	if rowsAffected != 1 {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return xerrors.New("rows affected is not 1")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
 	return nil
 }
 
