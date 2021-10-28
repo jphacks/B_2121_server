@@ -392,14 +392,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      communities:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/community"
+                $ref: "#/components/schemas/listUserBookmarkResponse"
     post:
       summary: Create a new bookmark
       tags:
@@ -721,6 +714,15 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/restaurant"
+    listUserBookmarkResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            communities:
+              type: array
+              items:
+                $ref: "#/components/schemas/community"
     joinCommunityRequest:
       type: object
       required:
