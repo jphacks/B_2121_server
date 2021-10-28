@@ -9,13 +9,19 @@ import (
 )
 
 type CommunityUseCase struct {
-	sessionStore          session.Store
-	communityRepository   models.CommunityRepository
-	affiliationRepository models.AffiliationRepository
+	sessionStore                   session.Store
+	communityRepository            models.CommunityRepository
+	affiliationRepository          models.AffiliationRepository
+	communityRestaurantsRepository models.CommunityRestaurantsRepository
 }
 
-func NewCommunityUseCase(store session.Store, communityRepository models.CommunityRepository, affiliationRepository models.AffiliationRepository) CommunityUseCase {
-	return CommunityUseCase{sessionStore: store, communityRepository: communityRepository, affiliationRepository: affiliationRepository}
+func NewCommunityUseCase(store session.Store, communityRepository models.CommunityRepository, affiliationRepository models.AffiliationRepository, communityRestaurantsRepository models.CommunityRestaurantsRepository) CommunityUseCase {
+	return CommunityUseCase{
+		sessionStore:                   store,
+		communityRepository:            communityRepository,
+		affiliationRepository:          affiliationRepository,
+		communityRestaurantsRepository: communityRestaurantsRepository,
+	}
 }
 
 func (u *CommunityUseCase) GetCommunity(ctx context.Context, id int64) (*models.CommunityDetail, error) {
@@ -42,4 +48,12 @@ func (u *CommunityUseCase) SearchCommunity(ctx context.Context, keyword string) 
 	}
 
 	return comm, nil
+}
+
+func (u *CommunityUseCase) ListRestaurants(ctx context.Context, communityId int64) ([]*models.Restaurant, error) {
+	rest, err := u.communityRestaurantsRepository.ListCommunityRestaurants(ctx, communityId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get restaurants of community: %w", err)
+	}
+	return rest, nil
 }

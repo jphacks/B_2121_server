@@ -46,10 +46,11 @@ func main() {
 	communityRepository := database.NewCommunityRepository(db)
 	userRepository := database.NewUserRepository(db)
 	affiliationRepository := database.NewAffiliationRepository(db)
+	communityRestaurantsRepository := database.NewCommunityRestaurantsRepository(db)
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, userRepository, conf)
-	communityUseCase := usecase.NewCommunityUseCase(store, communityRepository, affiliationRepository)
+	communityUseCase := usecase.NewCommunityUseCase(store, communityRepository, affiliationRepository, communityRestaurantsRepository)
 	handler := api.NewHandler(userUseCase, communityUseCase)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

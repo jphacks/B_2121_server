@@ -61,6 +61,18 @@ func (h handler) GetCommunityById(ctx echo.Context, id int) error {
 	return ctx.JSON(http.StatusOK, community.ToOpenApiCommunityDetail())
 }
 
-func (h handler) ListCommunityRestaurants(ctx echo.Context, id int, params openapi.ListCommunityRestaurantsParams) error {
-	panic("implement me")
+func (h handler) ListCommunityRestaurants(ctx echo.Context, id int, _ openapi.ListCommunityRestaurantsParams) error {
+	rest, err := h.communityUseCase.ListRestaurants(ctx.Request().Context(), int64(id))
+	if err != nil {
+		return err
+	}
+
+	ret := make([]openapi.Restaurant, 0)
+	for _, restaurant := range rest {
+		ret = append(ret, *restaurant.ToOpenApiRestaurant())
+	}
+
+	return ctx.JSON(http.StatusOK, openapi.ListCommunityRestaurantsResponse{
+		Restaurants: &ret,
+	})
 }
