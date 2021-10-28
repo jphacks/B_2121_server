@@ -466,6 +466,17 @@ components:
               type: integer
     createCommunityRequest:
       type: object
+      required:
+        - name
+        - location
+        - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: "#/components/schemas/location"
     restaurant:
       type: object
       description: Restaurant
