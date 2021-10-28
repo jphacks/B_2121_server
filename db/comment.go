@@ -24,6 +24,10 @@ func (c commentRepository) SetComment(ctx context.Context, communityId, restaura
 	dbComment, err := models_gen.Comments(qm.Where("community_id = ? AND restaurant_id = ?", communityId, restaurantId)).One(ctx, c.db)
 	if xerrors.Is(err, sql.ErrNoRows) {
 		result, err := c.db.ExecContext(ctx, "INSERT INTO comments (community_id, restaurant_id, body) VALUES (?, ?, ?)", communityId, restaurantId, comment)
+		if err != nil {
+			return xerrors.Errorf("failed to get from database: %w", err)
+		}
+
 		rows, err := result.RowsAffected()
 		if err != nil {
 			return xerrors.Errorf("failed to get # of rows affected: %w", err)
