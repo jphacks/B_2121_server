@@ -59,11 +59,50 @@ func (h handler) RemoveRestaurantFromCommunity(ctx echo.Context, id int64, resta
 }
 
 func (h handler) GetRestaurantComment(ctx echo.Context, id int, restaurantId int) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+
+	comm, err := h.commentUseCase.GetComment(ctx.Request().Context(), info.UserId, int64(id), int64(restaurantId))
+	if err != nil {
+		return err
+	}
+	comId := openapi.Long(id)
+	restId := openapi.Long(restaurantId)
+
+	return ctx.JSON(http.StatusOK, openapi.Comment{
+		Body:         &comm,
+		CommunityId:  &comId,
+		RestaurantId: &restId,
+	})
 }
 
 func (h handler) UpdateRestaurantComment(ctx echo.Context, id int, restaurantId int) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+
+	var req openapi.UpdateRestaurantCommentJSONRequestBody
+	err := ctx.Bind(&req)
+	if err != nil {
+		ctx.Logger().Errorf("failed to bind request: %v", err)
+		return echo.ErrBadRequest
+	}
+
+	err = h.commentUseCase.SetComment(ctx.Request().Context(), info.UserId, int64(id), int64(restaurantId), *req.Body)
+	if err != nil {
+		return err
+	}
+	comId := openapi.Long(id)
+	restId := openapi.Long(restaurantId)
+
+	return ctx.JSON(http.StatusOK, openapi.Comment{
+		Body:         req.Body,
+		CommunityId:  &comId,
+		RestaurantId: &restId,
+	})
 }
 
 func (h handler) SearchRestaurants(ctx echo.Context, params openapi.SearchRestaurantsParams) error {

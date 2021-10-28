@@ -51,12 +51,15 @@ func main() {
 	affiliationRepository := database.NewAffiliationRepository(db)
 	communityRestaurantsRepository := database.NewCommunityRestaurantsRepository(db)
 	restaurantRepository := database.NewRestaurantRepository(db)
+	commentRepository := database.NewCommentRepository(db)
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, userRepository, conf)
 	communityUseCase := usecase.NewCommunityUseCase(store, conf, communityRepository, affiliationRepository, communityRestaurantsRepository)
 	restaurantUseCase := usecase.NewRestaurantUseCase(hotpepper, restaurantRepository, userRepository, communityRestaurantsRepository)
-	handler := api.NewHandler(userUseCase, communityUseCase, restaurantUseCase)
+	commentUseCase := usecase.NewCommentUseCase(commentRepository, userRepository)
+
+	handler := api.NewHandler(userUseCase, communityUseCase, restaurantUseCase, commentUseCase)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(session.NewSessionMiddleware(&session.MiddlewareConfig{SessionStore: store}))
