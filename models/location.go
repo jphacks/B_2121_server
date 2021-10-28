@@ -13,3 +13,10 @@ func FromOpenApiLocation(location openapi.Location) *Location {
 		Longitude: location.Lng,
 	}
 }
+
+func (l *Location) ToOpenApiLocation() openapi.Location {
+	return openapi.Location{
+		Lat: l.Latitude,
+		Lng: l.Longitude,
+	}
+}
