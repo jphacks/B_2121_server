@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"bytes"
+	"context"
 	"net/url"
 	"os"
 	"path"
@@ -16,44 +17,40 @@ import (
 
 const profileImageSize = 400
 
-type UserUseCase interface {
-	NewUser(name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error)
-	MyUser(userId int64) (*models.UserDetail, error)
-	UpdateUserProfileImage(userId int64, imageData []byte) (*models.User, error)
-}
-
-func NewUserUseCase(store session.Store, config *config.ServerConfig) UserUseCase {
-	return &userUseCase{
+func NewUserUseCase(store session.Store, userRepo models.UserRepository, config *config.ServerConfig) UserUseCase {
+	return UserUseCase{
 		imageStorePath: "./profileImages/",
 		imageUrlBase:   config.ProfileImageBaseUrl,
 		sessionStore:   store,
+		userRepo:       userRepo,
 	}
 }
 
-type userUseCase struct {
+type UserUseCase struct {
 	imageStorePath string
 	imageUrlBase   string
 	sessionStore   session.Store
+	userRepo       models.UserRepository
 }
 
-func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (usr *models.User, e error) {
+func (u *UserUseCase) UpdateUserProfileImage(ctx context.Context, userId int64, imageData []byte) (imageUrl string, e error) {
 	imageId, err := uuid.DefaultGenerator.NewV4()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to generate uuid: %w", err)
+		return "", xerrors.Errorf("failed to generate uuid: %w", err)
 	}
 	physicalPath := path.Join(u.imageStorePath, imageId.String()+".jpg")
 	img, err := images.LoadImage(bytes.NewReader(imageData))
 	if err != nil {
-		return nil, xerrors.Errorf("failed to load image: %w", err)
+		return "", xerrors.Errorf("failed to load image: %w", err)
 	}
 	img, err = img.CropToSquare()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to crop image: %w", err)
+		return "", xerrors.Errorf("failed to crop image: %w", err)
 	}
 	img = img.ResizeToSquare(profileImageSize)
 	file, err := os.Create(physicalPath)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to create image file: %w", err)
+		return "", xerrors.Errorf("failed to create image file: %w", err)
 	}
 	defer func() {
 		e1 := file.Close()
@@ -63,32 +60,29 @@ func (u *userUseCase) UpdateUserProfileImage(userId int64, imageData []byte) (us
 	}()
 	err = img.Save(file)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to save image: %w", err)
+		return "", xerrors.Errorf("failed to save image: %w", err)
 	}
 	baseUrl, err := url.Parse(u.imageUrlBase)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to load base url: %w", err)
+		return "", xerrors.Errorf("failed to load base url: %w", err)
 	}
 	baseUrl.Path = path.Join(baseUrl.Path, path.Base(physicalPath))
 
-	// TODO: Update database record
+	err = u.userRepo.UpdateProfileImage(ctx, userId, path.Base(physicalPath))
+	if err != nil {
+		return "", xerrors.Errorf("failed to update data in db: %w", err)
+	}
 
-	return &models.User{
-		Id:              userId,
-		Name:            "", // TODO: Retrieve from database
-		ProfileImageUrl: baseUrl.String(),
-	}, nil
+	return baseUrl.String(), nil
 }
 
-func (u *userUseCase) NewUser(name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error) {
-	// TODO: update id, save user info
-	var userId int64 = 1
-	user := &models.User{
-		Id:              userId,
-		Name:            name,
-		ProfileImageUrl: "",
+func (u *UserUseCase) NewUser(ctx context.Context, name string, authVendor models.AuthVendor) (*models.User, *models.AuthInfo, error) {
+	user, err := u.userRepo.NewUser(ctx, name)
+	if err != nil {
+		return nil, nil, xerrors.Errorf("failed to create user to database: %w", err)
 	}
-	token, err := u.sessionStore.New(userId)
+
+	token, err := u.sessionStore.New(user.Id)
 	if err != nil {
 		return nil, nil, xerrors.Errorf("failed to create a new session: %w", err)
 	}
@@ -99,14 +93,22 @@ func (u *userUseCase) NewUser(name string, authVendor models.AuthVendor) (*model
 	return user, authInfo, nil
 }
 
-func (u *userUseCase) MyUser(userId int64) (*models.UserDetail, error) {
-	// TODO: This is a test implementation !!!
-	return &models.UserDetail{
-		User: models.User{
-			Name: "your name",
-			Id:   userId,
-		},
-		BookmarkCount:  0,
-		CommunityCount: 0,
-	}, nil
+func (u *UserUseCase) MyUser(ctx context.Context, userId int64) (*models.UserDetail, error) {
+	baseUrl, err := url.Parse(u.imageUrlBase)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load base url: %w", err)
+	}
+	user, err := u.userRepo.GetUserDetailById(ctx, userId, *baseUrl)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get user detail: %w", err)
+	}
+	return user, nil
+}
+
+func (u *UserUseCase) ListUserCommunities(ctx context.Context, userId int64) ([]*models.Community, error) {
+	comm, err := u.userRepo.ListUserCommunity(ctx, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to list communities: %w", err)
+	}
+	return comm, nil
 }

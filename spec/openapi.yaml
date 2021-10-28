@@ -292,14 +292,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - type: object
-                    properties:
-                      communities:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/community'
-                  - $ref: '#/components/schemas/pageInfo'
+                $ref: "#/components/schemas/listUserCommunityResponse"
       operationId: list-user-communities
   '/user':
     post:
@@ -641,6 +634,15 @@ components:
       properties:
         imageUrl:
           type: string
+    listUserCommunityResponse:
+      allOf:
+        - type: object
+          properties:
+            communities:
+              type: array
+              items:
+                $ref: '#/components/schemas/community'
+        - $ref: '#/components/schemas/pageInfo'
   securitySchemes:
     token:
       type: apiKey
