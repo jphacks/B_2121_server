@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/models_gen"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/xerrors"
 )
 
@@ -56,4 +57,18 @@ func (c *communityRepository) NewCommunity(ctx context.Context, name string, des
 		return nil, xerrors.Errorf("failed to get community: %w", err)
 	}
 	return &models.Community{Community: *community}, nil
+}
+
+func (c *communityRepository) SearchCommunity(ctx context.Context, keyword string) ([]*models.Community, error) {
+	//comm := make([]models_gen.Community, 0)
+	query := "%" + keyword + "%"
+	comm, err := models_gen.Communities(qm.Where("name LIKE ? OR description LIKE ?", query, query)).All(ctx, c.db) // c.db.SelectContext(ctx, &comm, "SELECT * FROM communities WHERE name LIKE ? OR description LIKE ?", query, query)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get from database: %w", err)
+	}
+	ret := make([]*models.Community, 0)
+	for _, community := range comm {
+		ret = append(ret, &models.Community{Community: *community})
+	}
+	return ret, nil
 }

@@ -34,3 +34,12 @@ func (u *CommunityUseCase) NewCommunity(ctx context.Context, userId int64, name 
 	}
 	return community, nil
 }
+
+func (u *CommunityUseCase) SearchCommunity(ctx context.Context, keyword string) ([]*models.Community, error) {
+	comm, err := u.communityRepository.SearchCommunity(ctx, keyword)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to search community: %w", err)
+	}
+
+	return comm, nil
+}

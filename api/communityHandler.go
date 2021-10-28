@@ -34,7 +34,19 @@ func (h handler) NewCommunity(ctx echo.Context) error {
 }
 
 func (h handler) SearchCommunities(ctx echo.Context, params openapi.SearchCommunitiesParams) error {
-	panic("implement me")
+	comm, err := h.communityUseCase.SearchCommunity(ctx.Request().Context(), params.Keyword)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Support search based on location
+	ret := make([]openapi.Community, 0)
+	for _, community := range comm {
+		ret = append(ret, *community.ToOpenApiCommunity())
+	}
+	return ctx.JSON(http.StatusOK, openapi.SearchCommunityResponse{
+		Communities: &ret,
+	})
 }
 
 func (h handler) GetCommunityById(ctx echo.Context, id int) error {
