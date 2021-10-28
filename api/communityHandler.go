@@ -76,3 +76,24 @@ func (h handler) ListCommunityRestaurants(ctx echo.Context, id int, _ openapi.Li
 		Restaurants: &ret,
 	})
 }
+
+func (h handler) ListUsersOfCommunity(ctx echo.Context, id int, _ openapi.ListUsersOfCommunityParams) error {
+	users, err := h.communityUseCase.ListUsers(ctx.Request().Context(), int64(id))
+	if xerrors.Is(err, sql.ErrNoRows) {
+		return ctx.JSON(http.StatusOK, openapi.ListCommunityUsersResponse{
+			User:  openapi.User{},
+			Users: nil,
+		})
+	}
+	if err != nil {
+		return err
+	}
+
+	openapiUsers := make([]openapi.User, 0)
+	for _, u := range users {
+		openapiUsers = append(openapiUsers, *u.ToOpenApiUser())
+	}
+	return ctx.JSON(http.StatusOK, openapi.ListCommunityUsersResponse{
+		Users: &openapiUsers,
+	})
+}

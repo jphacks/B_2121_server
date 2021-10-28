@@ -34,10 +34,6 @@ func (h handler) UpdateRestaurantComment(ctx echo.Context, id int, restaurantId 
 	panic("implement me")
 }
 
-func (h handler) ListUsersOfCommunity(ctx echo.Context, id int, params openapi.ListUsersOfCommunityParams) error {
-	panic("implement me")
-}
-
 func (h handler) SearchRestaurants(ctx echo.Context, params openapi.SearchRestaurantsParams) error {
 	panic("implement me")
 }

@@ -50,7 +50,7 @@ func main() {
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, userRepository, conf)
-	communityUseCase := usecase.NewCommunityUseCase(store, communityRepository, affiliationRepository, communityRestaurantsRepository)
+	communityUseCase := usecase.NewCommunityUseCase(store, conf, communityRepository, affiliationRepository, communityRestaurantsRepository)
 	handler := api.NewHandler(userUseCase, communityUseCase)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
