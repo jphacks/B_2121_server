@@ -17,7 +17,7 @@ func main() {
 	apiKey := os.Args[1]
 	keyword := os.Args[2]
 	search := restaurant_search.NewSearchApi(apiKey)
-	r, err := search.Search(keyword, models.Location{
+	r, err := search.Search(keyword, &models.Location{
 		Latitude:  35.0344823881,
 		Longitude: 135.7841217166,
 	}, 10)
