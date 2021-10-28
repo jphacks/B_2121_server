@@ -19,6 +19,8 @@ type CommunityDetail struct {
 
 type CommunityRepository interface {
 	GetCommunityByID(ctx context.Context, id int64) (*CommunityDetail, error)
+	NewCommunity(ctx context.Context, name string, description string, loc Location) (*Community, error)
+	SearchCommunity(ctx context.Context, keyword string) ([]*Community, error)
 }
 
 func (c *Community) ToOpenApiCommunity() *openapi.Community {

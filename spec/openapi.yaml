@@ -67,14 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      restaurants:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/restaurant"
+                $ref: "#/components/schemas/listCommunityRestaurantsResponse"
       operationId: list-community-restaurants
     post:
       summary: Add a restaurant to a community
@@ -198,14 +191,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/user"
-                  - type: object
-                    properties:
-                      users:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/user"
+                $ref: "#/components/schemas/listCommunityUsersResponse"
         '404':
           description: |
             Not found
@@ -233,14 +219,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      restaurants:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/community"
+                $ref: "#/components/schemas/searchCommunityResponse"
       operationId: search-communities
   '/restaurant/search':
     get:
@@ -480,6 +459,17 @@ components:
               type: integer
     createCommunityRequest:
       type: object
+      required:
+        - name
+        - location
+        - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: "#/components/schemas/location"
     restaurant:
       type: object
       description: Restaurant
@@ -634,6 +624,24 @@ components:
       properties:
         imageUrl:
           type: string
+    listCommunityUsersResponse:
+      allOf:
+        - $ref: "#/components/schemas/user"
+        - type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/user"
+    searchCommunityResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            communities:
+              type: array
+              items:
+                $ref: "#/components/schemas/community"
     listUserCommunityResponse:
       allOf:
         - type: object
@@ -643,6 +651,15 @@ components:
               items:
                 $ref: '#/components/schemas/community'
         - $ref: '#/components/schemas/pageInfo'
+    listCommunityRestaurantsResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            restaurants:
+              type: array
+              items:
+                $ref: "#/components/schemas/restaurant"
   securitySchemes:
     token:
       type: apiKey
