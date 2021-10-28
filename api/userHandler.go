@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"io/ioutil"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/jphacks/B_2121_server/openapi"
 	"github.com/jphacks/B_2121_server/session"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/xerrors"
 )
 
 func (h handler) NewUser(ctx echo.Context) error {
@@ -100,6 +102,28 @@ func (h handler) PostUserMeCommunities(ctx echo.Context) error {
 	err = h.userUseCase.JoinCommunity(ctx.Request().Context(), userId, int64(req.CommunityId))
 	if err != nil {
 		// TODO: communityがない場合404, Duplicate entryの場合400
+		return err
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
+}
+
+func (h handler) DeleteUserIdCommunitiesCommunityId(ctx echo.Context, id openapi.Long, communityId openapi.Long) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+
+	if userId != int64(id) {
+		return echo.ErrUnauthorized
+	}
+
+	err := h.userUseCase.LeaveCommunity(ctx.Request().Context(), userId, int64(communityId))
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
 		return err
 	}
 

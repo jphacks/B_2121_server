@@ -118,3 +118,7 @@ func (u *UserUseCase) ListUserCommunities(ctx context.Context, userId int64) ([]
 func (u *UserUseCase) JoinCommunity(ctx context.Context, userId int64, communityId int64) error {
 	return u.affiliationRepo.JoinCommunity(ctx, userId, communityId)
 }
+
+func (u *UserUseCase) LeaveCommunity(ctx context.Context, userId int64, communityId int64) error {
+	return u.affiliationRepo.LeaveCommunity(ctx, userId, communityId)
+}
