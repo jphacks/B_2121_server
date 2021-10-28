@@ -31,3 +31,11 @@ func (r RestaurantUseCase) SearchRestaurant(ctx context.Context, keyword string,
 	}
 	return modelRest, err
 }
+
+func (r RestaurantUseCase) GetRestaurantById(ctx context.Context, id int64) (*models.Restaurant, error) {
+	rest, err := r.restaurantRepository.GetRestaurantById(ctx, id)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get restaurant: %w", err)
+	}
+	return rest, nil
+}

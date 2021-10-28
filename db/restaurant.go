@@ -56,6 +56,16 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, rest.Name, rest.Location.Latitude, rest.Locati
 	return ret, nil
 }
 
+func (r *restaurantRepository) GetRestaurantById(ctx context.Context, id int64) (*models.Restaurant, error) {
+	rest, err := models_gen.FindRestaurant(ctx, r.db, id)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get restaurant from database: %w", err)
+	}
+
+	// TODO: Update when the information is old
+	return fromDbRestaurant(rest), nil
+}
+
 func fromDbRestaurant(rest *models_gen.Restaurant) *models.Restaurant {
 	return &models.Restaurant{
 		Id:       rest.ID,

@@ -37,4 +37,5 @@ func (r *Restaurant) ToOpenApiRestaurant() *openapi.Restaurant {
 
 type RestaurantRepository interface {
 	AddOrUpdateRestaurant(ctx context.Context, restaurant *[]SearchApiRestaurant, source RestaurantSource) ([]*Restaurant, error)
+	GetRestaurantById(ctx context.Context, id int64) (*Restaurant, error)
 }

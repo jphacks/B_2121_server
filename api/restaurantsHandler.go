@@ -11,7 +11,15 @@ import (
 )
 
 func (h handler) GetRestaurantId(ctx echo.Context, id int64) error {
-	panic("implement me")
+	rest, err := h.restaurantUseCase.GetRestaurantById(ctx.Request().Context(), id)
+	if xerrors.Is(err, sql.ErrNoRows) {
+		return echo.ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, rest.ToOpenApiRestaurant())
 }
 
 func (h handler) AddRestaurantToCommunity(ctx echo.Context, id int) error {
