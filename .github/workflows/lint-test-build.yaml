@@ -99,6 +99,7 @@ jobs:
         env:
           DB_USER: ${{ secrets.MYSQL_USER }}
           DB_PASSWORD: ${{ secrets.MYSQL_PASS }}
+          HOTPEPPER_KEY: ${{ secrets.HOTPEPPER_KEY }}
       - name: Notify to Slack
         uses: craftech-io/slack-action@v1
         with:

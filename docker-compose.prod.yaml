@@ -13,6 +13,7 @@ services:
       - DB_USER
       - DB_PASSWORD
       - DB_HOST=mysql
+      - HOTPEPPER_KEY
   mysql:
     container_name: mysql
     image: kmconner/goyotashi-mysql:latest
