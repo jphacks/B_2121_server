@@ -25,3 +25,7 @@ func (u *BookmarkUseCase) CreateBookmark(ctx context.Context, userId, communityI
 func (u *BookmarkUseCase) ListBookmark(ctx context.Context, userId int64) ([]models.Community, error) {
 	return u.bookmarkRepo.ListBookmarkByUserId(ctx, userId)
 }
+
+func (u *BookmarkUseCase) DeleteBookmark(ctx context.Context, userId int64, communityId int64) error {
+	return u.bookmarkRepo.DeleteBookmark(ctx, userId, communityId)
+}

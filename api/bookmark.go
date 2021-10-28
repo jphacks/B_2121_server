@@ -68,5 +68,23 @@ func (h handler) PostUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 }
 
 func (h handler) DeleteUserIdBookmarkCommunityId(ctx echo.Context, id openapi.Long, communityId openapi.Long) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+
+	if int64(id) != userId {
+		return echo.ErrUnauthorized
+	}
+
+	err := h.bookmarkUseCase.DeleteBookmark(ctx.Request().Context(), userId, int64(communityId))
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
 }
