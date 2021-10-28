@@ -67,3 +67,57 @@ jobs:
           git commit --allow-empty -m "Sync to spec commit" -m "${{ github.repository }}@${{ github.sha }}"
       - name: Push codes
         run: git push origin master
+  build-swift:
+    name: Build swift client
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: "8"
+          distribution: 'temurin'
+      - name: install openapi generator
+        run: wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/5.2.1/openapi-generator-cli-5.2.1.jar -O ~/openapi-generator-cli.jar
+      - name: Build ducment
+        run: |
+           mkdir dist
+           java -jar ~/openapi-generator-cli.jar generate -i ./spec/openapi.yaml -g swift5 -o dist --additional-properties=responseAs=RxSwift --additional-properties=library=alamofire
+      - name: Copy podspec
+        run: cp ./spec/OpenAPIClient.podspec ./dist
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: gen-swift
+          path: ./dist/
+          retention-days: 1
+  sync-swift:
+    name: Sync swift client
+    runs-on: ubuntu-20.04
+    needs:
+      - build-swift
+    steps:
+      - name: Checkout stub repo
+        uses: actions/checkout@v2
+        with:
+          repository: "jphacks/B_2121_client"
+          token: ${{ secrets.GH_PAT }}
+      - name: Create target Directory
+        run: mkdir -p OpenAPIClient
+      - name: download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: gen-swift
+          path: OpenAPIClient
+      - name: Commit codes
+        run: |
+          git checkout -b sync-swift-${{ github.sha }}
+          git config --global user.email "bot@example.com"
+          git config --global user.name "bot"
+          git add ./
+          git commit --allow-empty -m "Sync to spec commit" -m "${{ github.repository }}@${{ github.sha }}"
+      - name: Push codes
+        run: |
+          git push origin sync-swift-${{ github.sha }}
