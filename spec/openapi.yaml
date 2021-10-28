@@ -67,14 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      restaurants:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/restaurant"
+                $ref: "#/components/schemas/listCommunityRestaurantsResponse"
       operationId: list-community-restaurants
     post:
       summary: Add a restaurant to a community
@@ -658,6 +651,15 @@ components:
               items:
                 $ref: '#/components/schemas/community'
         - $ref: '#/components/schemas/pageInfo'
+    listCommunityRestaurantsResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            restaurants:
+              type: array
+              items:
+                $ref: "#/components/schemas/restaurant"
   securitySchemes:
     token:
       type: apiKey
