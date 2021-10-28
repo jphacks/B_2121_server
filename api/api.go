@@ -25,15 +25,3 @@ type handler struct {
 func (h handler) DeleteUserIdCommunitiesCommunityId(ctx echo.Context, id openapi.Long, communityId openapi.Long) error {
 	panic("implement me")
 }
-
-func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
-	panic("implement me")
-}
-
-func (h handler) PostUserIdBookmark(ctx echo.Context, id openapi.Long) error {
-	panic("implement me")
-}
-
-func (h handler) DeleteUserIdBookmarkCommunityId(ctx echo.Context, id openapi.Long, communityId openapi.Long) error {
-	panic("implement me")
-}
