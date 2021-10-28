@@ -22,6 +22,10 @@ type handler struct {
 	commentUseCase    usecase.CommentUseCase
 }
 
+func (h handler) DeleteUserIdCommunitiesCommunityId(ctx echo.Context, id openapi.Long, communityId openapi.Long) error {
+	panic("implement me")
+}
+
 func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 	panic("implement me")
 }

@@ -81,3 +81,15 @@ func (h handler) ListUserCommunities(ctx echo.Context, id openapi.Long, params o
 		PageInfo:    openapi.PageInfo{},
 	})
 }
+
+// PostUserIdCommunities - Join a community
+func (h handler) PostUserIdCommunities(ctx echo.Context, id openapi.Long) error {
+	var req openapi.PostUserIdCommunitiesJSONRequestBody
+	err := ctx.Bind(&req)
+	if err != nil {
+		ctx.Logger().Errorf("failed to bind request: %v", err)
+		return echo.ErrBadRequest
+	}
+
+	return nil
+}

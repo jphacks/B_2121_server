@@ -54,7 +54,7 @@ func main() {
 	commentRepository := database.NewCommentRepository(db)
 
 	store := session.NewStore("key")
-	userUseCase := usecase.NewUserUseCase(store, userRepository, conf)
+	userUseCase := usecase.NewUserUseCase(store, userRepository, affiliationRepository, conf)
 	communityUseCase := usecase.NewCommunityUseCase(store, conf, communityRepository, affiliationRepository, communityRestaurantsRepository)
 	restaurantUseCase := usecase.NewRestaurantUseCase(hotpepper, restaurantRepository, userRepository, communityRestaurantsRepository)
 	commentUseCase := usecase.NewCommentUseCase(commentRepository, userRepository)
