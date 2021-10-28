@@ -39,3 +39,21 @@ func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*
 		UserCount:     int(userCount),
 	}, nil
 }
+
+func (c *communityRepository) NewCommunity(ctx context.Context, name string, description string, loc models.Location) (*models.Community, error) {
+	result, err := c.db.ExecContext(ctx, "INSERT INTO communities(name, description, latitude,longitude,image_file) VALUES (?,?,?,?,'')",
+		name, description, loc.Latitude, loc.Longitude)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to insert to database: %w", err)
+	}
+
+	communityId, err := result.LastInsertId()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get last insert id: %w", err)
+	}
+	community, err := models_gen.FindCommunity(ctx, c.db, communityId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get community: %w", err)
+	}
+	return &models.Community{*community}, nil
+}
