@@ -17,20 +17,22 @@ import (
 
 const profileImageSize = 400
 
-func NewUserUseCase(store session.Store, userRepo models.UserRepository, config *config.ServerConfig) UserUseCase {
+func NewUserUseCase(store session.Store, userRepo models.UserRepository, affiliationRepo models.AffiliationRepository, config *config.ServerConfig) UserUseCase {
 	return UserUseCase{
-		imageStorePath: "./profileImages/",
-		imageUrlBase:   config.ProfileImageBaseUrl,
-		sessionStore:   store,
-		userRepo:       userRepo,
+		imageStorePath:  "./profileImages/",
+		imageUrlBase:    config.ProfileImageBaseUrl,
+		sessionStore:    store,
+		userRepo:        userRepo,
+		affiliationRepo: affiliationRepo,
 	}
 }
 
 type UserUseCase struct {
-	imageStorePath string
-	imageUrlBase   string
-	sessionStore   session.Store
-	userRepo       models.UserRepository
+	imageStorePath  string
+	imageUrlBase    string
+	sessionStore    session.Store
+	userRepo        models.UserRepository
+	affiliationRepo models.AffiliationRepository
 }
 
 func (u *UserUseCase) UpdateUserProfileImage(ctx context.Context, userId int64, imageData []byte) (imageUrl string, e error) {
@@ -111,4 +113,12 @@ func (u *UserUseCase) ListUserCommunities(ctx context.Context, userId int64) ([]
 		return nil, xerrors.Errorf("failed to list communities: %w", err)
 	}
 	return comm, nil
+}
+
+func (u *UserUseCase) JoinCommunity(ctx context.Context, userId int64, communityId int64) error {
+	return u.affiliationRepo.JoinCommunity(ctx, userId, communityId)
+}
+
+func (u *UserUseCase) LeaveCommunity(ctx context.Context, userId int64, communityId int64) error {
+	return u.affiliationRepo.LeaveCommunity(ctx, userId, communityId)
 }

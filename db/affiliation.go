@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"net/url"
 	"path"
 
@@ -66,4 +67,38 @@ func (a affiliationRepository) ListCommunityUsers(ctx context.Context, community
 	}
 
 	return ret, nil
+}
+
+func (a affiliationRepository) LeaveCommunity(ctx context.Context, userId, communityId int64) error {
+	tx, err := a.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	aff, err := models_gen.Affiliations(qm.Where("user_id = ?", userId), qm.And("community_id = ?", communityId)).One(ctx, tx)
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return xerrors.Errorf("affiliation not found: %w", err)
+		}
+		return err
+	}
+
+	rowsAffected, err := aff.Delete(ctx, tx)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return xerrors.Errorf("failed to get row affected: %w", err)
+	}
+	if rowsAffected != 1 {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return xerrors.New("rows affected is not 1")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
 }

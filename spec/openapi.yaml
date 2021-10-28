@@ -9,7 +9,7 @@ servers:
   - url: https://api.goyotashi.kmconner.net
     description: production server
 security:
-  - token: []
+  - token: [ ]
 paths:
   '/community/{id}':
     get:
@@ -309,6 +309,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/listUserCommunityResponse"
       operationId: list-user-communities
+  '/user/{id}/communities/{community_id}':
+    delete:
+      summary: 'Leave a community'
+      tags:
+        - User
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+        - name: community_id
+          schema:
+            $ref: "#/components/schemas/long"
+          required: true
+          in: path
+      responses:
+        '204':
+          description: |
+            No content
+            Successfully leaved
+        '404':
+          description: |
+            Not Found
   '/user':
     post:
       summary: Create a new user
@@ -341,6 +365,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/userDetail"
       operationId: get-my-profile
+  '/user/me/communities':
+    post:
+      summary: Join a community
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/joinCommunityRequest"
+      responses:
+        '204':
+          description: NoContent
   '/user/profile':
     post:
       tags:
@@ -376,14 +414,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      communities:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/community"
+                $ref: "#/components/schemas/listUserBookmarkResponse"
     post:
       summary: Create a new bookmark
       tags:
@@ -705,6 +736,22 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/restaurant"
+    listUserBookmarkResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            communities:
+              type: array
+              items:
+                $ref: "#/components/schemas/community"
+    joinCommunityRequest:
+      type: object
+      required:
+        - community_id
+      properties:
+        community_id:
+          $ref: "#/components/schemas/long"
   securitySchemes:
     token:
       type: apiKey
