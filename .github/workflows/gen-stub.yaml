@@ -71,6 +71,8 @@ jobs:
     name: Build swift client
     runs-on: ubuntu-20.04
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
       - name: Install Java
         uses: actions/setup-java@v2
         with:
