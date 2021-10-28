@@ -1,14 +1,34 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/jphacks/B_2121_server/openapi"
 	"github.com/jphacks/B_2121_server/session"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/xerrors"
 )
 
 func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+
+	if int64(id) != userId {
+		return echo.ErrUnauthorized
+	}
+
+	_, err := h.bookmarkUseCase.ListBookmark(ctx.Request().Context(), int64(id))
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+
 	panic("implement me")
 }
 

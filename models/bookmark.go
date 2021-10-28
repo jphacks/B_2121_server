@@ -12,5 +12,5 @@ type Bookmark struct {
 
 type BookmarkRepository interface {
 	CreateBookmark(ctx context.Context, userId, communityId int64) error
-	ListBookmarkByUserId(ctx context.Context, userId int64) (*[]Bookmark, error)
+	ListBookmarkByUserId(ctx context.Context, userId int64) ([]Community, error)
 }
