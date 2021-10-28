@@ -208,9 +208,20 @@ paths:
             type: string
           in: query
           required: true
-        - name: center
+        - name: center_lat
           schema:
-            $ref: "#/components/schemas/location"
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+          in: query
+          required: false
+        - name: center_lng
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
           in: query
           required: false
       responses:
@@ -233,9 +244,20 @@ paths:
             type: string
           in: query
           required: true
-        - name: center
+        - name: center_lat
           schema:
-            $ref: "#/components/schemas/location"
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+          in: query
+          required: false
+        - name: center_lng
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
           in: query
           required: false
       responses:
