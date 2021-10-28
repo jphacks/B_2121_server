@@ -45,7 +45,17 @@ func (h handler) AddRestaurantToCommunity(ctx echo.Context, id int) error {
 }
 
 func (h handler) RemoveRestaurantFromCommunity(ctx echo.Context, id int64, restaurantId int64) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+
+	err := h.restaurantUseCase.RemoveRestaurantFromCommunity(ctx.Request().Context(), info.UserId, id, restaurantId)
+
+	if err != nil {
+		return err
+	}
+	return ctx.NoContent(http.StatusNoContent)
 }
 
 func (h handler) GetRestaurantComment(ctx echo.Context, id int, restaurantId int) error {

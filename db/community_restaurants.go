@@ -68,3 +68,17 @@ func (c communityRestaurantsRepository) AddRestaurants(ctx context.Context, comm
 	}
 	return nil
 }
+
+func (c communityRestaurantsRepository) RemoveRestaurants(ctx context.Context, communityId int64, restaurantId int64) error {
+	count, err := models_gen.CommunitiesRestaurants(qm.Where("community_id = ? AND restaurant_id = ?", communityId, restaurantId)).DeleteAll(ctx, c.db)
+	if err != nil {
+		return xerrors.Errorf("failed to get restaurant from database: %w", err)
+	}
+
+	// TODO: return a dedicated error
+	if count == 0 {
+		return echo.ErrNotFound
+	}
+
+	return nil
+}

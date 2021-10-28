@@ -57,7 +57,25 @@ func (r RestaurantUseCase) AddRestaurantToCommunity(ctx context.Context, userId 
 		return echo.ErrForbidden
 	}
 
-	err = r.communityRestaurantsRepository.AddRestaurants(ctx, communityId, userId)
+	err = r.communityRestaurantsRepository.AddRestaurants(ctx, communityId, restaurantId)
+	if err != nil {
+		return xerrors.Errorf("failed to add restaurant: %w", err)
+	}
+
+	return nil
+}
+
+func (r RestaurantUseCase) RemoveRestaurantFromCommunity(ctx context.Context, userId int64, communityId int64, restaurantId int64) error {
+	exist, err := r.userRepository.ExistInCommunity(ctx, userId, communityId)
+	if err != nil {
+		return xerrors.Errorf("failed to whether the user belongs to the community: %w", err)
+	}
+
+	if !exist {
+		return echo.ErrForbidden
+	}
+
+	err = r.communityRestaurantsRepository.RemoveRestaurants(ctx, communityId, restaurantId)
 	if err != nil {
 		return xerrors.Errorf("failed to add restaurant: %w", err)
 	}
