@@ -96,6 +96,15 @@ func (u userRepository) ListUserCommunity(ctx context.Context, userId int64) ([]
 	return ret, nil
 }
 
+func (u userRepository) ExistInCommunity(ctx context.Context, userId int64, communityId int64) (bool, error) {
+	num, err := models_gen.Affiliations(qm.Where("community_id = ? AND user_id = ?", communityId, userId)).Count(ctx, u.db)
+	if err != nil {
+		return false, xerrors.Errorf("failed to get affiliations from database: %w", err)
+	}
+
+	return num > 0, nil
+}
+
 func fromGenUser(u *models_gen.User, imageUrlBase url.URL) *models.User {
 	if u.ProfileImageFile.Valid {
 		imageUrlBase.Path = path.Join(imageUrlBase.Path, u.ProfileImageFile.String)

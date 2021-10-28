@@ -1,6 +1,23 @@
 package models
 
-import "github.com/jphacks/B_2121_server/openapi"
+import (
+	"context"
+
+	"github.com/jphacks/B_2121_server/openapi"
+)
+
+type RestaurantSource string
+
+const HotpepperSource RestaurantSource = "hotpepper"
+
+type SearchApiRestaurant struct {
+	Id       string
+	Name     string
+	Location Location
+	ImageUrl string
+	PageUrl  string
+	Address  string
+}
 
 type Restaurant struct {
 	Id       int64
@@ -16,4 +33,9 @@ func (r *Restaurant) ToOpenApiRestaurant() *openapi.Restaurant {
 		Location: r.Location.ToOpenApiLocation(),
 		Name:     r.Name,
 	}
+}
+
+type RestaurantRepository interface {
+	AddOrUpdateRestaurant(ctx context.Context, restaurant *[]SearchApiRestaurant, source RestaurantSource) ([]*Restaurant, error)
+	GetRestaurantById(ctx context.Context, id int64) (*Restaurant, error)
 }

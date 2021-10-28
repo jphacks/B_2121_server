@@ -74,3 +74,9 @@
 - `models_gen`はSQLBoilerで生成している
   - `docker compose up`でサーバーとMySQLをローカルで起動する
   - `sqlboiler mysql`で`models_gen`を生成する
+
+## 実行方法 (docker を使う場合)
+
+1. ホットペッパーの API キーを取得する (See https://webservice.recruit.co.jp/doc/hotpepper/reference.html)
+2. `docker-compose.override.yaml.example` をコピーして `docker-compose.override.yaml` というファイル名のファイルを作成し、そこに記入する
+3. `docker-compose up` (必要に応じて `--build` をつける)

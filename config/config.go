@@ -20,4 +20,5 @@ type ServerConfig struct {
 	DBDatabaseName      string `envconfig:"DB_NAME" default:"goyotashi"`
 	DBUser              string `envconfig:"DB_USER" default:"goyotashi"`
 	DBPassword          string `envconfig:"DB_PASSWORD" default:"password"`
+	HotpepperApiKey     string `envconfig:"HOTPEPPER_KEY" required:"true"`
 }

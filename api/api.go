@@ -6,36 +6,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewHandler(userUseCase usecase.UserUseCase, communityUseCase usecase.CommunityUseCase) openapi.ServerInterface {
+func NewHandler(userUseCase usecase.UserUseCase, communityUseCase usecase.CommunityUseCase, restaurantUseCase usecase.RestaurantUseCase, commentUseCase usecase.CommentUseCase) openapi.ServerInterface {
 	return &handler{
-		userUseCase:      userUseCase,
-		communityUseCase: communityUseCase,
+		userUseCase:       userUseCase,
+		communityUseCase:  communityUseCase,
+		commentUseCase:    commentUseCase,
+		restaurantUseCase: restaurantUseCase,
 	}
 }
 
 type handler struct {
-	userUseCase      usecase.UserUseCase
-	communityUseCase usecase.CommunityUseCase
-}
-
-func (h handler) AddRestaurantToCommunity(ctx echo.Context, id int) error {
-	panic("implement me")
-}
-
-func (h handler) RemoveRestaurantFromCommunity(ctx echo.Context, id int64, restaurantId int64) error {
-	panic("implement me")
-}
-
-func (h handler) GetRestaurantComment(ctx echo.Context, id int, restaurantId int) error {
-	panic("implement me")
-}
-
-func (h handler) UpdateRestaurantComment(ctx echo.Context, id int, restaurantId int) error {
-	panic("implement me")
-}
-
-func (h handler) SearchRestaurants(ctx echo.Context, params openapi.SearchRestaurantsParams) error {
-	panic("implement me")
+	userUseCase       usecase.UserUseCase
+	communityUseCase  usecase.CommunityUseCase
+	restaurantUseCase usecase.RestaurantUseCase
+	commentUseCase    usecase.CommentUseCase
 }
 
 func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {

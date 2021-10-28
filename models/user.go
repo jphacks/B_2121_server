@@ -41,4 +41,5 @@ type UserRepository interface {
 	GetUserDetailById(ctx context.Context, id int64, profileImageBase url.URL) (*UserDetail, error)
 	UpdateProfileImage(ctx context.Context, userId int64, fileName string) error
 	ListUserCommunity(ctx context.Context, userId int64) ([]*Community, error)
+	ExistInCommunity(ctx context.Context, userId int64, communityId int64) (bool, error)
 }

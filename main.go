@@ -7,6 +7,7 @@ import (
 	"github.com/jphacks/B_2121_server/config"
 	database "github.com/jphacks/B_2121_server/db"
 	"github.com/jphacks/B_2121_server/openapi"
+	"github.com/jphacks/B_2121_server/restaurant_search"
 	"github.com/jphacks/B_2121_server/session"
 	"github.com/jphacks/B_2121_server/usecase"
 	"github.com/labstack/echo/v4"
@@ -42,16 +43,23 @@ func main() {
 		return
 	}
 
+	hotpepper := restaurant_search.NewSearchApi(conf.HotpepperApiKey)
+
 	// register repositories
 	communityRepository := database.NewCommunityRepository(db)
 	userRepository := database.NewUserRepository(db)
 	affiliationRepository := database.NewAffiliationRepository(db)
 	communityRestaurantsRepository := database.NewCommunityRestaurantsRepository(db)
+	restaurantRepository := database.NewRestaurantRepository(db)
+	commentRepository := database.NewCommentRepository(db)
 
 	store := session.NewStore("key")
 	userUseCase := usecase.NewUserUseCase(store, userRepository, conf)
 	communityUseCase := usecase.NewCommunityUseCase(store, conf, communityRepository, affiliationRepository, communityRestaurantsRepository)
-	handler := api.NewHandler(userUseCase, communityUseCase)
+	restaurantUseCase := usecase.NewRestaurantUseCase(hotpepper, restaurantRepository, userRepository, communityRestaurantsRepository)
+	commentUseCase := usecase.NewCommentUseCase(commentRepository, userRepository)
+
+	handler := api.NewHandler(userUseCase, communityUseCase, restaurantUseCase, commentUseCase)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(session.NewSessionMiddleware(&session.MiddlewareConfig{SessionStore: store}))

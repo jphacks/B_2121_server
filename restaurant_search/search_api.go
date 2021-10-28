@@ -13,18 +13,10 @@ import (
 
 const hotpepperBaseUrl = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/"
 
-type Restaurant struct {
-	Id       string
-	Name     string
-	Location models.Location
-	ImageUrl string
-	PageUrl  string
-	Address  string
-}
-
 type SearchApi interface {
-	Search(keyword string, location models.Location, count int) (*[]Restaurant, error)
-	SearchNext(keyword string, location models.Location, startCount int, count int) (*[]Restaurant, error)
+	Source() models.RestaurantSource
+	Search(keyword string, location *models.Location, count int) (*[]models.SearchApiRestaurant, error)
+	SearchNext(keyword string, location *models.Location, startCount int, count int) (*[]models.SearchApiRestaurant, error)
 }
 
 func NewSearchApi(apiKey string) SearchApi {
@@ -35,7 +27,11 @@ type hotpepperSearch struct {
 	token string
 }
 
-func (h hotpepperSearch) Search(keyword string, location models.Location, count int) (*[]Restaurant, error) {
+func (h hotpepperSearch) Source() models.RestaurantSource {
+	return models.HotpepperSource
+}
+
+func (h hotpepperSearch) Search(keyword string, location *models.Location, count int) (*[]models.SearchApiRestaurant, error) {
 	r, err := h.SearchNext(keyword, location, 0, count)
 	if err != nil {
 		return nil, xerrors.Errorf("API request failed: %w", err)
@@ -43,7 +39,7 @@ func (h hotpepperSearch) Search(keyword string, location models.Location, count 
 	return r, nil
 }
 
-func (h hotpepperSearch) SearchNext(keyword string, location models.Location, startCount int, count int) (*[]Restaurant, error) {
+func (h hotpepperSearch) SearchNext(keyword string, location *models.Location, startCount int, count int) (*[]models.SearchApiRestaurant, error) {
 	u, err := url.Parse(hotpepperBaseUrl)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to parse base url: %w", err)
@@ -51,12 +47,14 @@ func (h hotpepperSearch) SearchNext(keyword string, location models.Location, st
 	q := u.Query()
 	q.Set("key", h.token)
 	q.Set("keyword", keyword)
-	q.Set("lat", fmt.Sprintf("%.10f", location.Latitude))
-	q.Set("lng", fmt.Sprintf("%.10f", location.Longitude))
 	q.Set("start", fmt.Sprintf("%d", startCount))
 	q.Set("count", fmt.Sprintf("%d", count))
 	q.Set("format", "json")
-	q.Set("range", "5")
+	if location != nil {
+		q.Set("lat", fmt.Sprintf("%.10f", location.Latitude))
+		q.Set("lng", fmt.Sprintf("%.10f", location.Longitude))
+		q.Set("range", "5")
+	}
 	u.RawQuery = q.Encode()
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
@@ -84,9 +82,9 @@ func (h hotpepperSearch) SearchNext(keyword string, location models.Location, st
 		return nil, xerrors.Errorf("failed to deserialize json: %w", err)
 	}
 
-	ret := make([]Restaurant, 0)
+	ret := make([]models.SearchApiRestaurant, 0)
 	for _, restaurant := range jsonData.Results.Shop {
-		ret = append(ret, Restaurant{
+		ret = append(ret, models.SearchApiRestaurant{
 			Id:   restaurant.Id,
 			Name: restaurant.Name,
 			Location: models.Location{
