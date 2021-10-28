@@ -7,7 +7,7 @@ require (
 	github.com/friendsofgo/errors v0.9.2
 	github.com/getkin/kin-openapi v0.80.0
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/gofrs/uuid v4.1.0+incompatible
 	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/sessions v1.2.1
