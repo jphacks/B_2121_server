@@ -25,7 +25,7 @@ func (b *bookmarkRepository) ListBookmarkByUserId(ctx context.Context, userId in
 
 	ret := make([]models.Community, 0, len(comms))
 	for _, comm := range comms {
-		ret = append(ret, models.Community{*comm})
+		ret = append(ret, models.Community{Community: *comm})
 	}
 
 	return ret, nil
