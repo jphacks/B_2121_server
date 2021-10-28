@@ -21,7 +21,7 @@ func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 		return echo.ErrUnauthorized
 	}
 
-	_, err := h.bookmarkUseCase.ListBookmark(ctx.Request().Context(), int64(id))
+	bookmarks, err := h.bookmarkUseCase.ListBookmark(ctx.Request().Context(), int64(id))
 	if err != nil {
 		if xerrors.Is(err, sql.ErrNoRows) {
 			return echo.ErrNotFound
@@ -29,7 +29,15 @@ func (h handler) GetUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 		return err
 	}
 
-	panic("implement me")
+	res := make([]openapi.Community, 0, len(bookmarks))
+	for _, b := range bookmarks {
+		res = append(res, *b.ToOpenApiCommunity())
+	}
+
+	return ctx.JSON(http.StatusOK, openapi.ListUserBookmarkResponse{
+		PageInfo:    openapi.PageInfo{},
+		Communities: &res,
+	})
 }
 
 func (h handler) PostUserIdBookmark(ctx echo.Context, id openapi.Long) error {
