@@ -81,7 +81,7 @@ jobs:
       - name: Build ducment
         run: |
            mkdir dist
-           java -jar ~/openapi-generator-cli.jar generate -i ./apiSpec/spec.yaml -g swift5 -o dist --additional-properties=responseAs=RxSwift
+           java -jar ~/openapi-generator-cli.jar generate -i ./spec/openapi.yaml -g swift5 -o dist --additional-properties=responseAs=RxSwift
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
