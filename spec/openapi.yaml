@@ -198,14 +198,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/user"
-                  - type: object
-                    properties:
-                      users:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/user"
+                $ref: "#/components/schemas/listCommunityUsersResponse"
         '404':
           description: |
             Not found
@@ -233,14 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      restaurants:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/community"
+                $ref: "#/components/schemas/searchCommunityResponse"
       operationId: search-communities
   '/restaurant/search':
     get:
@@ -641,6 +627,24 @@ components:
       properties:
         imageUrl:
           type: string
+    listCommunityUsersResponse:
+      allOf:
+        - $ref: "#/components/schemas/user"
+        - type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/user"
+    searchCommunityResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            restaurants:
+              type: array
+              items:
+                $ref: "#/components/schemas/community"
   securitySchemes:
     token:
       type: apiKey
