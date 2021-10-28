@@ -99,6 +99,7 @@ func (h handler) PostUserMeCommunities(ctx echo.Context) error {
 
 	err = h.userUseCase.JoinCommunity(ctx.Request().Context(), userId, int64(req.CommunityId))
 	if err != nil {
+		// TODO: communityがない場合404, Duplicate entryの場合400
 		return err
 	}
 
