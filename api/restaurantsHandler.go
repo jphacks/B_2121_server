@@ -1,8 +1,13 @@
 package api
 
 import (
+	"database/sql"
+	"net/http"
+
+	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/openapi"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/xerrors"
 )
 
 func (h handler) GetRestaurantId(ctx echo.Context, id int64) error {
@@ -26,5 +31,27 @@ func (h handler) UpdateRestaurantComment(ctx echo.Context, id int, restaurantId 
 }
 
 func (h handler) SearchRestaurants(ctx echo.Context, params openapi.SearchRestaurantsParams) error {
-	panic("implement me")
+	var center *models.Location = nil
+
+	ret := make([]openapi.Restaurant, 0)
+	if params.Center != nil && params.Center.Lng != 0 && params.Center.Lat != 0 {
+		center = models.FromOpenApiLocation(*params.Center)
+	}
+	rest, err := h.restaurantUseCase.SearchRestaurant(ctx.Request().Context(), params.Keyword, center)
+	if xerrors.Is(err, sql.ErrNoRows) {
+		return ctx.JSON(http.StatusOK, openapi.SearchRestaurantResponse{
+			Restaurants: &ret,
+		})
+	}
+	if err != nil {
+		return err
+	}
+	for _, restaurant := range rest {
+		r := restaurant.ToOpenApiRestaurant()
+		ret = append(ret, *r)
+	}
+
+	return ctx.JSON(http.StatusOK, openapi.SearchRestaurantResponse{
+		Restaurants: &ret,
+	})
 }

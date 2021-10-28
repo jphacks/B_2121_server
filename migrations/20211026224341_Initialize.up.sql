@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS `communities`
     `id`          BIGINT AUTO_INCREMENT PRIMARY KEY,
     `name`        VARCHAR(255) NOT NULL,
     `description` VARCHAR(511) NOT NULL,
-    `latitude`    DOUBLE CHECK ( `latitude` >= -180 AND `latitude` < 180 ),
-    `longitude`   DOUBLE CHECK ( `longitude` >= -90 AND `longitude` < 90 ),
+    `latitude`    DOUBLE CHECK ( `latitude` >= -90 AND `latitude` < 90 ),
+    `longitude`   DOUBLE CHECK ( `longitude` >= -180 AND `longitude` < 180 ),
     `image_file`  VARCHAR(255) NOT NULL COMMENT '画像のファイル名',
     `created_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS `restaurants`
 (
     `id`         BIGINT AUTO_INCREMENT PRIMARY KEY,
     `name`       VARCHAR(255) NOT NULL,
-    `latitude`   DOUBLE CHECK ( `latitude` >= -180 AND `latitude` < 180 ),
-    `longitude`  DOUBLE CHECK ( `longitude` >= -90 AND `longitude` < 90 ),
+    `latitude`   DOUBLE CHECK ( `latitude` >= -90 AND `latitude` < 90 ),
+    `longitude`  DOUBLE CHECK ( `longitude` >= -180 AND `longitude` < 180 ),
     `address`    VARCHAR(255) NOT NULL UNIQUE COMMENT '住所',
     `url`        VARCHAR(255) NOT NULL COMMENT 'レストラン情報の取得元のレストランのURL',
     `image_url`  VARCHAR(255) COMMENT '画像のURL',
