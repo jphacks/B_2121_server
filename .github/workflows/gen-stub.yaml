@@ -1,69 +1,118 @@
 name: Build and sync generated files
 on:
   push:
-    paths:
-      - spec/openapi.yaml
+#    paths:
+#      - spec/openapi.yaml
 jobs:
-  build-go:
-    name: Build Go stub
+#  build-go:
+#    name: Build Go stub
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Install Go
+#        uses: actions/setup-go@v2
+#        with:
+#          go-version: 1.17
+#      - name: install oapi-go
+#        run:  go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen
+#      - name: Build server stub
+#        run: |
+#          mkdir -p openapi
+#          oapi-codegen -generate "types,server,spec" -o ./openapi/generated.go -package openapi ./spec/openapi.yaml
+#      - name: 'Sync'
+#        run: |
+#          git config --global user.email "bot@example.com"
+#          git config --global user.name "bot"
+#          git add ./
+#          git commit --allow-empty -m "Sync to proto commit [skip ci]" -m "${{ github.repository }}@${{ github.sha }}"
+#          git push origin "${GITHUB_REF##*/}"
+#  build-doc:
+#    if: github.ref == 'refs/heads/master'
+#    name: Build API documentation
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/setup-node@v2
+#        with:
+#          node-version: '14'
+#      - name: Generate markdown
+#        run: |
+#          mkdir dist
+#          npx openapi-markdown -i ./spec/openapi.yaml -o ./dist/APIDocument.md
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: gen-doc
+#          path: ./dist/
+#          retention-days: 1
+#  sync-doc:
+#    name: Sync docs to wiki
+#    needs: build-doc
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - name: Checkout stub repo
+#        uses: actions/checkout@v2
+#        with:
+#          repository: "jphacks/B_2121_server.wiki"
+#          token: ${{ secrets.GH_PAT }}
+#      - name: download artifact
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: gen-doc
+#      - name: Commit codes
+#        run: |
+#          git config --global user.email "bot@example.com"
+#          git config --global user.name "bot"
+#          git add ./
+#          git commit --allow-empty -m "Sync to spec commit" -m "${{ github.repository }}@${{ github.sha }}"
+#      - name: Push codes
+#        run: git push origin master
+  build-swift:
+    name: Build swift client
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Go
-        uses: actions/setup-go@v2
+      - name: Install Java
+        uses: actions/setup-java@v2
         with:
-          go-version: 1.17
-      - name: install oapi-go
-        run:  go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen
-      - name: Build server stub
+          java-version: "8"
+          distribution: 'temurin'
+      - name: install openapi generator
+        run: wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/5.2.1/openapi-generator-cli-5.2.1.jar -O ~/openapi-generator-cli.jar
+      - name: Build ducment
         run: |
-          mkdir -p openapi
-          oapi-codegen -generate "types,server,spec" -o ./openapi/generated.go -package openapi ./spec/openapi.yaml
-      - name: 'Sync'
-        run: |
-          git config --global user.email "bot@example.com"
-          git config --global user.name "bot"
-          git add ./
-          git commit --allow-empty -m "Sync to proto commit [skip ci]" -m "${{ github.repository }}@${{ github.sha }}"
-          git push origin "${GITHUB_REF##*/}"
-  build-doc:
-    if: github.ref == 'refs/heads/master'
-    name: Build API documentation
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - name: Generate markdown
-        run: |
-          mkdir dist
-          npx openapi-markdown -i ./spec/openapi.yaml -o ./dist/APIDocument.md
+           mkdir dist
+           java -jar ~/openapi-generator-cli.jar generate -i ./apiSpec/spec.yaml -g swift5 -o dist --additional-properties=responseAs=RxSwift
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: gen-doc
           path: ./dist/
           retention-days: 1
-  sync-doc:
-    name: Sync docs to wiki
-    needs: build-doc
+  sync-swift:
+    name: Sync swift client
     runs-on: ubuntu-20.04
+    needs:
+      - build-swift
     steps:
       - name: Checkout stub repo
         uses: actions/checkout@v2
         with:
-          repository: "jphacks/B_2121_server.wiki"
+          repository: "jphacks/B_2121_client"
           token: ${{ secrets.GH_PAT }}
+      - name: Create target Directory
+        run: mkdir -p OpenAPIClient
       - name: download artifact
         uses: actions/download-artifact@v2
         with:
           name: gen-doc
+          path: OpenAPIClient
       - name: Commit codes
         run: |
+          git checkout -b sync-swift-${{ github.sha }}
           git config --global user.email "bot@example.com"
           git config --global user.name "bot"
           git add ./
           git commit --allow-empty -m "Sync to spec commit" -m "${{ github.repository }}@${{ github.sha }}"
       - name: Push codes
-        run: git push origin master
+        run: |
+          git push origin sync-swift-${{ github.sha }}
