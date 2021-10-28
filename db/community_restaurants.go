@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/models_gen"
+	"github.com/labstack/echo/v4"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/xerrors"
 )
@@ -40,4 +41,30 @@ func (c communityRestaurantsRepository) ListCommunityRestaurants(ctx context.Con
 		})
 	}
 	return ret, nil
+}
+
+func (c communityRestaurantsRepository) AddRestaurants(ctx context.Context, communityId int64, restaurantId int64) error {
+	count, err := models_gen.CommunitiesRestaurants(qm.Where("community_id = ? AND restaurant_id = ?", communityId, restaurantId)).Count(ctx, c.db)
+	if err != nil {
+		return xerrors.Errorf("failed to get restaurant from database: %w", err)
+	}
+
+	// TODO: Return the dedicated error object
+	if count > 0 {
+		return echo.ErrBadRequest
+	}
+
+	result, err := c.db.ExecContext(ctx, "INSERT INTO communities_restaurants(community_id, restaurant_id) VALUES (?, ?)", communityId, restaurantId)
+	if err != nil {
+		return xerrors.Errorf("failed to add to database: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return xerrors.Errorf("failed to get # of rows affected: %w", err)
+	}
+	if rows != 1 {
+		return xerrors.New("rows affected is not 1")
+	}
+	return nil
 }

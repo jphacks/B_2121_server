@@ -6,6 +6,7 @@ import (
 
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/openapi"
+	"github.com/jphacks/B_2121_server/session"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/xerrors"
 )
@@ -23,7 +24,24 @@ func (h handler) GetRestaurantId(ctx echo.Context, id int64) error {
 }
 
 func (h handler) AddRestaurantToCommunity(ctx echo.Context, id int) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+
+	var req openapi.AddRestaurantRequest
+	err := ctx.Bind(&req)
+	if err != nil {
+		ctx.Logger().Errorf("failed to bind request body: %v", err)
+		return echo.ErrBadRequest
+	}
+
+	err = h.restaurantUseCase.AddRestaurantToCommunity(ctx.Request().Context(), info.UserId, int64(id), int64(req.RestaurantId))
+	if err != nil {
+		return err
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
 }
 
 func (h handler) RemoveRestaurantFromCommunity(ctx echo.Context, id int64, restaurantId int64) error {
