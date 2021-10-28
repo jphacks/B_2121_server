@@ -237,6 +237,26 @@ paths:
           schema:
             $ref: "#/components/schemas/location"
           in: query
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/searchRestaurantResponse"
+      operationId: search-restaurants
+  '/restaurant/{id}':
+    get:
+      summary: Get information about the speicifed restaurant.
+      tags:
+        - Restaurant
+      parameters:
+        - name: id
+          schema:
+            type: integer
+            format: int64
+          in: path
           required: true
       responses:
         '200':
@@ -244,15 +264,9 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/pageInfo"
-                  - type: object
-                    properties:
-                      restaurants:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/restaurant"
-      operationId: search-restaurants
+                $ref: "#/components/schemas/restaurant"
+        '404':
+          description: Not found
   '/user/{id}/communities':
     get:
       summary: Get communities where the specified user joins
@@ -652,6 +666,15 @@ components:
                 $ref: '#/components/schemas/community'
         - $ref: '#/components/schemas/pageInfo'
     listCommunityRestaurantsResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            restaurants:
+              type: array
+              items:
+                $ref: "#/components/schemas/restaurant"
+    searchRestaurantResponse:
       allOf:
         - $ref: "#/components/schemas/pageInfo"
         - type: object
