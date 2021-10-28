@@ -32,6 +32,7 @@ func (h handler) PostUserIdBookmark(ctx echo.Context, id openapi.Long) error {
 
 	err = h.bookmarkUseCase.CreateBookmark(ctx.Request().Context(), userId, int64(req.CommunityId))
 	if err != nil {
+		// TODO: communityがない場合404, Duplicate entryの場合400
 		return err
 	}
 

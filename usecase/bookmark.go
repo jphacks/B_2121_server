@@ -15,7 +15,7 @@ type BookmarkUseCase struct {
 }
 
 func (u *BookmarkUseCase) CreateBookmark(ctx context.Context, userId, communityId int64) error {
-	_, err := u.bookmarkRepo.CreateBookmark(ctx, userId, communityId)
+	err := u.bookmarkRepo.CreateBookmark(ctx, userId, communityId)
 	if err != nil {
 		return err
 	}
