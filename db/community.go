@@ -55,5 +55,5 @@ func (c *communityRepository) NewCommunity(ctx context.Context, name string, des
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get community: %w", err)
 	}
-	return &models.Community{*community}, nil
+	return &models.Community{Community: *community}, nil
 }
