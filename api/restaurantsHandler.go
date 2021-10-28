@@ -109,8 +109,11 @@ func (h handler) SearchRestaurants(ctx echo.Context, params openapi.SearchRestau
 	var center *models.Location = nil
 
 	ret := make([]openapi.Restaurant, 0)
-	if params.Center != nil && params.Center.Lng != 0 && params.Center.Lat != 0 {
-		center = models.FromOpenApiLocation(*params.Center)
+	if params.CenterLat != nil && params.CenterLng != nil && *params.CenterLng != 0 && *params.CenterLat != 0 {
+		center = &models.Location{
+			Latitude:  *params.CenterLat,
+			Longitude: *params.CenterLng,
+		}
 	}
 	rest, err := h.restaurantUseCase.SearchRestaurant(ctx.Request().Context(), params.Keyword, center)
 	if xerrors.Is(err, sql.ErrNoRows) {
