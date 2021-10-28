@@ -433,14 +433,14 @@ components:
         lat:
           type: number
           format: double
-          minimum: -180
-          maximum: 180
+          minimum: -90
+          maximum: 90
           description: latitude
         lng:
           type: number
           format: double
-          minimum: -90
-          maximum: 90
+          minimum: -180
+          maximum: 180
           description: longitude
       example:
         lng: 35.02488258885156
