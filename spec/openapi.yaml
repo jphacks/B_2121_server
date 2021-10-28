@@ -645,7 +645,7 @@ components:
         - $ref: "#/components/schemas/pageInfo"
         - type: object
           properties:
-            restaurants:
+            communities:
               type: array
               items:
                 $ref: "#/components/schemas/community"
