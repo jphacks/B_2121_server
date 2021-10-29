@@ -3,6 +3,7 @@ package usecase
 import (
 	"bytes"
 	"context"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -12,27 +13,36 @@ import (
 	"github.com/jphacks/B_2121_server/images"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/session"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/xerrors"
 )
 
 const profileImageSize = 400
 
-func NewUserUseCase(store session.Store, userRepo models.UserRepository, affiliationRepo models.AffiliationRepository, config *config.ServerConfig) UserUseCase {
+func NewUserUseCase(
+	store session.Store,
+	userRepo models.UserRepository,
+	affiliationRepo models.AffiliationRepository,
+	inviteTokenRepository models.InviteTokenRepository,
+	config *config.ServerConfig,
+) UserUseCase {
 	return UserUseCase{
-		imageStorePath:  "./profileImages/",
-		imageUrlBase:    config.ProfileImageBaseUrl,
-		sessionStore:    store,
-		userRepo:        userRepo,
-		affiliationRepo: affiliationRepo,
+		imageStorePath:        "./profileImages/",
+		imageUrlBase:          config.ProfileImageBaseUrl,
+		sessionStore:          store,
+		userRepo:              userRepo,
+		affiliationRepo:       affiliationRepo,
+		inviteTokenRepository: inviteTokenRepository,
 	}
 }
 
 type UserUseCase struct {
-	imageStorePath  string
-	imageUrlBase    string
-	sessionStore    session.Store
-	userRepo        models.UserRepository
-	affiliationRepo models.AffiliationRepository
+	imageStorePath        string
+	imageUrlBase          string
+	sessionStore          session.Store
+	userRepo              models.UserRepository
+	affiliationRepo       models.AffiliationRepository
+	inviteTokenRepository models.InviteTokenRepository
 }
 
 func (u *UserUseCase) UpdateUserProfileImage(ctx context.Context, userId int64, imageData []byte) (imageUrl string, e error) {
@@ -115,7 +125,11 @@ func (u *UserUseCase) ListUserCommunities(ctx context.Context, userId int64) ([]
 	return comm, nil
 }
 
-func (u *UserUseCase) JoinCommunity(ctx context.Context, userId int64, communityId int64) error {
+func (u *UserUseCase) JoinCommunity(ctx context.Context, userId int64, token string) error {
+	communityId, err := u.inviteTokenRepository.Verify(ctx, token)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusForbidden)
+	}
 	return u.affiliationRepo.JoinCommunity(ctx, userId, communityId)
 }
 
