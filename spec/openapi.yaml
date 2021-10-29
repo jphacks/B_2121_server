@@ -30,6 +30,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/community"
       operationId: get-community-by-id
+  '/community/{id}/token':
+    get:
+      summary: Get an invite token
+      tags:
+        - "Community"
+      parameters:
+        - schema:
+            type: integer
+          name: id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/getCommunityIdTokenResponse"
   '/community':
     post:
       summary: Create a new community
@@ -750,10 +768,24 @@ components:
     joinCommunityRequest:
       type: object
       required:
-        - community_id
+        - invite_token
       properties:
-        community_id:
-          $ref: "#/components/schemas/long"
+        invite_token:
+          type: string
+          example: example-token
+    getCommunityIdTokenResponse:
+      type: object
+      required:
+        - invite_token
+        - expires_in
+      properties:
+        invite_token:
+          type: string
+          example: example-token
+        expires_in:
+          type: integer
+          description: Token dulation (seconds)
+          example: 3600
   securitySchemes:
     token:
       type: apiKey
