@@ -307,6 +307,29 @@ paths:
                 $ref: "#/components/schemas/restaurant"
         '404':
           description: Not found
+  '/restaurant/{id}/other':
+    get:
+      summary: Get other communities which have the secified in thier lists
+      tags:
+        - Restaurant
+      parameters:
+        - name: id
+          schema:
+            $ref: "#/components/schemas/long"
+          in: path
+          required: true
+        - name: community_id
+          schema:
+            $ref: "#/components/schemas/long"
+          in: query
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getOtherCommunityResponse"
   '/user/{id}/communities':
     get:
       summary: Get communities where the specified user joins
@@ -544,6 +567,15 @@ components:
           type: integer
         num_restaurant:
           type: integer
+    getOtherCommunityResponse:
+      type: object
+      required:
+        - communities
+      properties:
+        communities:
+          type: array
+          items:
+            $ref: "#/components/schemas/community"
     createCommunityRequest:
       type: object
       required:
