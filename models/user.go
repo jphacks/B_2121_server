@@ -35,6 +35,11 @@ func (u *UserDetail) ToOpenApi() *openapi.UserDetail {
 	}
 }
 
+type UpdateUserInput struct {
+	Id   int64
+	Name *string
+}
+
 type UserRepository interface {
 	GetUserById(ctx context.Context, id int64, profileImageBase url.URL) (*User, error)
 	NewUser(ctx context.Context, userName string) (*User, error)
@@ -42,4 +47,5 @@ type UserRepository interface {
 	UpdateProfileImage(ctx context.Context, userId int64, fileName string) error
 	ListUserCommunity(ctx context.Context, userId int64) ([]*Community, error)
 	ExistInCommunity(ctx context.Context, userId int64, communityId int64) (bool, error)
+	UpdateUser(ctx context.Context, input *UpdateUserInput, profileImageBase url.URL) (*User, error)
 }

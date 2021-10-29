@@ -406,6 +406,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/userDetail"
       operationId: get-my-profile
+    put:
+      tags:
+        - User
+      summary: Update my profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/putUserMeRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
   '/user/me/communities':
     post:
       summary: Join a community
@@ -818,6 +835,11 @@ components:
           type: integer
           description: Token dulation (seconds)
           example: 3600
+    putUserMeRequest:
+      type: object
+      properties:
+        name:
+          type: string
   securitySchemes:
     token:
       type: apiKey
