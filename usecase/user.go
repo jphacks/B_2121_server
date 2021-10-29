@@ -136,3 +136,15 @@ func (u *UserUseCase) JoinCommunity(ctx context.Context, userId int64, token str
 func (u *UserUseCase) LeaveCommunity(ctx context.Context, userId int64, communityId int64) error {
 	return u.affiliationRepo.LeaveCommunity(ctx, userId, communityId)
 }
+
+func (u *UserUseCase) UpdateMe(ctx context.Context, userId int64, userName string) (*models.UserDetail, error) {
+	user, err := u.userRepo.UpdateUser(ctx, &models.UpdateUserInput{
+		Id:   userId,
+		Name: &userName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
