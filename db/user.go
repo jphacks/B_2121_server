@@ -180,6 +180,7 @@ func (u userRepository) UpdateUser(ctx context.Context, input *models.UpdateUser
 	if err != nil {
 		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
 	}
+	defer tx.Rollback()
 
 	user, err := models_gen.FindUser(ctx, tx, input.Id)
 	if err != nil {
@@ -199,16 +200,10 @@ func (u userRepository) UpdateUser(ctx context.Context, input *models.UpdateUser
 
 	rows, err := user.Update(ctx, tx, boil.Whitelist(updatedColumns...))
 	if err != nil {
-		if err := tx.Rollback(); err != nil {
-			return nil, err
-		}
 		return nil, err
 	}
 
 	if rows != 1 {
-		if err := tx.Rollback(); err != nil {
-			return nil, err
-		}
 		return nil, xerrors.New("rows affected is not 1")
 	}
 	if err := tx.Commit(); err != nil {
