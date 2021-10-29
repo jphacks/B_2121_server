@@ -97,3 +97,7 @@ func (h handler) ListUsersOfCommunity(ctx echo.Context, id int, _ openapi.ListUs
 		Users: &openapiUsers,
 	})
 }
+
+func (h handler) GetCommunityIdToken(ctx echo.Context, id int) error {
+	panic("implement me")
+}
