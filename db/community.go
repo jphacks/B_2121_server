@@ -10,6 +10,8 @@ import (
 	"golang.org/x/xerrors"
 )
 
+const numOfRestaurantImagePerCommunity = 6
+
 type communityRepository struct {
 	db *sqlx.DB
 }
@@ -18,7 +20,7 @@ func NewCommunityRepository(db *sqlx.DB) models.CommunityRepository {
 	return &communityRepository{db}
 }
 
-func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*models.CommunityDetail, error) {
+func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*models.Community, error) {
 	community, err := models_gen.FindCommunity(ctx, c.db, id)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to find a community by ID: %w", err)
@@ -34,10 +36,22 @@ func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*
 		return nil, xerrors.Errorf("failed to count users related to the community: %w", err)
 	}
 
-	return &models.CommunityDetail{
-		Community:     models.Community{Community: *community},
-		NumRestaurant: int(numRestaurants),
-		UserCount:     int(userCount),
+	urls := make([]string, 0, numOfRestaurantImagePerCommunity)
+	err = c.db.SelectContext(ctx, &urls, `SELECT image_url
+FROM communities_restaurants
+       INNER JOIN restaurants r ON communities_restaurants.restaurant_id = r.id
+WHERE community_id = ?
+ORDER BY r.created_at DESC
+LIMIT ?;`, id, numOfRestaurantImagePerCommunity)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image url from database: %w", err)
+	}
+
+	return &models.Community{
+		Community:      *community,
+		NumRestaurants: int(numRestaurants),
+		NumUsers:       int(userCount),
+		ImageUrls:      urls,
 	}, nil
 }
 
@@ -65,9 +79,86 @@ func (c *communityRepository) SearchCommunity(ctx context.Context, keyword strin
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get from database: %w", err)
 	}
+
+	if len(comm) == 0 {
+		return []*models.Community{}, nil
+	}
+
+	commIds := make([]int64, 0, len(comm))
+	for _, community := range comm {
+		commIds = append(commIds, community.ID)
+	}
+
+	sql, params, err := sqlx.In(`SELECT joined.community_id AS community_id, image_url
+FROM (
+       SELECT community_id,
+              r.image_url,
+              ROW_NUMBER() OVER (PARTITION BY community_id ORDER BY r.created_at DESC ) AS num
+       FROM communities_restaurants
+              INNER JOIN restaurants r
+                         ON communities_restaurants.restaurant_id = r.id
+       ORDER BY community_id, num) AS joined
+WHERE joined.num <= ?
+  AND community_id IN (?)`, numOfRestaurantImagePerCommunity, commIds)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to prepare params for image url: %w", err)
+	}
+	images := make([]communityImage, 0)
+	err = c.db.SelectContext(ctx, &images, sql, params...)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image urls from database: %w", err)
+	}
+	imageUrlMap := toImageUrlMap(images)
+
+	sql, params, err = sqlx.In(`SELECT community_id, COUNT(restaurant_id) AS num
+FROM communities_restaurants
+WHERE community_id IN (?)
+GROUP BY community_id`, commIds)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to prepare params for image url: %w", err)
+	}
+	restaurantNums := make([]communityNums, 0, len(comm))
+	err = c.db.SelectContext(ctx, &restaurantNums, sql, params...)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image urls from database: %w", err)
+	}
+	restaurantNumsMap := toCommunityNumsMap(restaurantNums)
+
+	sql, params, err = sqlx.In(`SELECT community_id, COUNT(user_id) AS num
+FROM affiliation
+WHERE community_id IN (?)
+GROUP BY community_id`, commIds)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to prepare params for image url: %w", err)
+	}
+	userNums := make([]communityNums, 0, len(comm))
+	err = c.db.SelectContext(ctx, &userNums, sql, params...)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image urls from database: %w", err)
+	}
+	userNumsMap := toCommunityNumsMap(userNums)
+
 	ret := make([]*models.Community, 0)
 	for _, community := range comm {
-		ret = append(ret, &models.Community{Community: *community})
+		imgs, ok := imageUrlMap[community.ID]
+		if !ok {
+			imgs = []string{}
+		}
+		restaurantNum, ok := restaurantNumsMap[community.ID]
+		if !ok {
+			restaurantNum = 0
+		}
+		userNum, ok := userNumsMap[community.ID]
+		if !ok {
+			userNum = 0
+		}
+
+		ret = append(ret, &models.Community{
+			Community:      *community,
+			ImageUrls:      imgs,
+			NumRestaurants: restaurantNum,
+			NumUsers:       userNum,
+		})
 	}
 	return ret, nil
 }
