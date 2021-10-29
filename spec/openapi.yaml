@@ -243,6 +243,17 @@ paths:
           schema:
             $ref: "#/components/schemas/long"
           in: path
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              type: object
+              required:
+                - user_id
+              properties:
+                user_id:
+                  $ref: "#/components/schemas/long"
       responses:
         '204':
           description: |
