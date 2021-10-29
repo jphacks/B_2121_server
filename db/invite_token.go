@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -58,5 +59,5 @@ func (r *inviteTokenRepository) Verify(ctx context.Context, token string) (int64
 
 func newDigestString(token string) string {
 	b := sha256.Sum256([]byte(token))
-	return string(b[:])
+	return hex.EncodeToString(b[:])
 }
