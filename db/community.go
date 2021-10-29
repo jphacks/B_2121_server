@@ -169,7 +169,9 @@ func (c *communityRepository) UpdateCommunity(ctx context.Context, communityId i
 	if err != nil {
 		return nil, xerrors.Errorf("failed to start transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	community, err := models_gen.FindCommunity(ctx, tx, communityId)
 	if err != nil {
