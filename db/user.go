@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"net/url"
 	"path"
 
@@ -180,7 +181,9 @@ func (u userRepository) UpdateUser(ctx context.Context, input *models.UpdateUser
 	if err != nil {
 		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		_ = tx.Rollback()
+	}(tx)
 
 	user, err := models_gen.FindUser(ctx, tx, input.Id)
 	if err != nil {
