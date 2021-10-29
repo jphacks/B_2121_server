@@ -190,6 +190,11 @@ func (c *communityRepository) UpdateCommunity(ctx context.Context, communityId i
 		return nil, xerrors.New("# of affected rows is not 1")
 	}
 
+	err = tx.Commit()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to commit transaction: %w", err)
+	}
+
 	return &models.Community{
 		Community: *community,
 		ImageUrls: []string{},
