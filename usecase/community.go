@@ -108,3 +108,20 @@ func (u *CommunityUseCase) IssueInviteToken(ctx context.Context, issuerId int64,
 
 	return inviteToken, nil
 }
+
+func (u *CommunityUseCase) UpdateCommunity(ctx context.Context, userId, communityId int64, name string, description string, loc models.Location) (*models.Community, error) {
+	permitted, err := u.userRepository.ExistInCommunity(ctx, userId, communityId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !permitted {
+		return nil, echo.NewHTTPError(http.StatusForbidden)
+	}
+
+	community, err := u.communityRepository.UpdateCommunity(ctx, communityId, name, description, loc)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to update community: %w", err)
+	}
+	return community, nil
+}

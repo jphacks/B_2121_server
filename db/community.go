@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/models_gen"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/xerrors"
 )
@@ -161,4 +162,34 @@ GROUP BY community_id`, commIds)
 		})
 	}
 	return ret, nil
+}
+
+func (c *communityRepository) UpdateCommunity(ctx context.Context, communityId int64, name string, description string, loc models.Location) (*models.Community, error) {
+	tx, err := c.db.Beginx()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to start transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	community, err := models_gen.FindCommunity(ctx, tx, communityId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get community: %w", err)
+	}
+
+	community.Name = name
+	community.Description = description
+	community.Latitude.SetValid(loc.Latitude)
+	community.Longitude.SetValid(loc.Longitude)
+	count, err := community.Update(ctx, tx, boil.Infer())
+	if err != nil {
+		return nil, xerrors.Errorf("failed to update community: %w", err)
+	}
+	if count != 1 {
+		return nil, xerrors.New("# of affected rows is not 1")
+	}
+
+	return &models.Community{
+		Community: *community,
+		ImageUrls: []string{},
+	}, nil
 }
