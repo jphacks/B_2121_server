@@ -24,9 +24,69 @@ func (b *bookmarkRepository) ListBookmarkByUserId(ctx context.Context, userId in
 		return nil, err
 	}
 
+	images := make([]communityImage, 0)
+	err = b.db.SelectContext(ctx, &images, `SELECT joined.community_id, image_url
+FROM (
+       SELECT communities_restaurants.id,
+              community_id,
+              restaurant_id,
+              r.image_url,
+              communities_restaurants.created_at,
+              ROW_NUMBER() OVER (PARTITION BY community_id ORDER BY r.created_at DESC ) AS num
+       FROM communities_restaurants
+              INNER JOIN restaurants r
+                         ON communities_restaurants.restaurant_id = r.id
+       ORDER BY community_id, num) AS joined
+       INNER JOIN bookmarks ON joined.community_id = bookmarks.community_id
+WHERE joined.num <= ?
+  AND user_id = ?`, numOfRestaurantImagePerCommunity, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image urls from database: %w", err)
+	}
+	imageUrlMap := toImageUrlMap(images)
+
+	restaurantNums := make([]communityNums, 0, len(comms))
+	err = b.db.SelectContext(ctx, &restaurantNums, `SELECT b.community_id as community_id, count(restaurant_id) as num
+FROM communities_restaurants INNER JOIN bookmarks b ON communities_restaurants.community_id = b.community_id
+WHERE user_id = ?
+GROUP BY community_id`, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get restaurant count from database: %s", err)
+	}
+	restaurantNumsMap := toCommunityNumsMap(restaurantNums)
+
+	userNums := make([]communityNums, 0, len(comms))
+	err = b.db.SelectContext(ctx, &userNums, `SELECT a1.community_id as community_id, count(a1.user_id) as num
+FROM affiliation as a1 INNER JOIN bookmarks as b ON a1.community_id = b.community_id
+WHERE b.user_id = ?
+GROUP BY a1.community_id`, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get user count from database: %s", err)
+	}
+	userNumsMap := toCommunityNumsMap(userNums)
+
 	ret := make([]models.Community, 0, len(comms))
 	for _, comm := range comms {
-		ret = append(ret, models.Community{Community: *comm})
+		images, ok := imageUrlMap[comm.ID]
+		if !ok {
+			images = []string{}
+		}
+		restaurantNum, ok := restaurantNumsMap[comm.ID]
+		if !ok {
+			restaurantNum = 0
+		}
+
+		userNum, ok := userNumsMap[comm.ID]
+		if !ok {
+			userNum = 0
+		}
+
+		ret = append(ret, models.Community{
+			Community:      *comm,
+			ImageUrls:      images,
+			NumRestaurants: restaurantNum,
+			NumUsers:       userNum,
+		})
 	}
 
 	return ret, nil
