@@ -175,6 +175,45 @@ func (u userRepository) ExistInCommunity(ctx context.Context, userId int64, comm
 	return num > 0, nil
 }
 
+func (u userRepository) UpdateUser(ctx context.Context, input *models.UpdateUserInput, profileImageBase url.URL) (*models.User, error) {
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
+	}
+
+	user, err := models_gen.FindUser(ctx, tx, input.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedColumns := make([]string, 0)
+
+	if input.Name != nil {
+		updatedColumns = append(updatedColumns, "name")
+		user.Name = *input.Name
+	}
+
+	rows, err := user.Update(ctx, tx, boil.Whitelist(updatedColumns...))
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return nil, err
+		}
+		return nil, err
+	}
+
+	if rows != 1 {
+		if err := tx.Rollback(); err != nil {
+			return nil, err
+		}
+		return nil, xerrors.New("rows affected is not 1")
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return fromGenUser(user, profileImageBase), nil
+}
+
 func fromGenUser(u *models_gen.User, imageUrlBase url.URL) *models.User {
 	if u.ProfileImageFile.Valid {
 		imageUrlBase.Path = path.Join(imageUrlBase.Path, u.ProfileImageFile.String)

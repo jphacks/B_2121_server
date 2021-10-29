@@ -47,5 +47,5 @@ type UserRepository interface {
 	UpdateProfileImage(ctx context.Context, userId int64, fileName string) error
 	ListUserCommunity(ctx context.Context, userId int64) ([]*Community, error)
 	ExistInCommunity(ctx context.Context, userId int64, communityId int64) (bool, error)
-	UpdateUser(ctx context.Context, input *UpdateUserInput) (*UserDetail, error)
+	UpdateUser(ctx context.Context, input *UpdateUserInput, profileImageBase url.URL) (*User, error)
 }
