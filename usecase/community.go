@@ -76,3 +76,5 @@ func (u *CommunityUseCase) ListUsers(ctx context.Context, communityId int64) ([]
 	}
 	return users, nil
 }
+
+func (u *CommunityUseCase) IssueInviteToken(ctx context.Context, issuerId int64, communityId int64) {}
