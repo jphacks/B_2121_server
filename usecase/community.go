@@ -42,6 +42,8 @@ func (u *CommunityUseCase) NewCommunity(ctx context.Context, userId int64, name 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to join community: %w", err)
 	}
+	community.NumUsers = 1
+	community.ImageUrls = []string{}
 	return community, nil
 }
 
