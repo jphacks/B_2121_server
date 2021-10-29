@@ -422,7 +422,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userDetail"
+                $ref: "#/components/schemas/user"
   '/user/me/communities':
     post:
       summary: Join a community
