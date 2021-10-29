@@ -24,15 +24,15 @@ type CommunityRepository interface {
 }
 
 func (c *Community) ToOpenApiCommunity() *openapi.Community {
-	var loc *openapi.Location
+	var loc openapi.Location
 	if c.Latitude.Valid && c.Longitude.Valid {
-		loc = &openapi.Location{
+		loc = openapi.Location{
 			Lat: c.Latitude.Float64,
 			Lng: c.Longitude.Float64,
 		}
 	}
 	return &openapi.Community{
-		Description: &c.Description,
+		Description: c.Description,
 		Id:          openapi.Long(c.ID),
 		Location:    loc,
 		Name:        c.Name,
