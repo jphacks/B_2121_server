@@ -135,7 +135,7 @@ func (h handler) PutUserMe(ctx echo.Context) error {
 	if !info.Authenticated {
 		return echo.ErrUnauthorized
 	}
-	_ = info.UserId
+	userId := info.UserId
 
 	var req openapi.PutUserMeJSONRequestBody
 	err := ctx.Bind(&req)
@@ -144,10 +144,13 @@ func (h handler) PutUserMe(ctx echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	//	TODO: impl
-	return ctx.JSON(http.StatusOK, openapi.UserDetail{
-		User:           openapi.User{},
-		BookmarkCount:  0,
-		CommunityCount: 0,
-	})
+	me, err := h.userUseCase.UpdateMe(ctx.Request().Context(), userId, req.Name)
+	if err != nil {
+		if xerrors.Is(err, sql.ErrNoRows) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, me.ToOpenApiUser())
 }

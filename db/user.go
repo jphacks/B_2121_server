@@ -193,6 +193,10 @@ func (u userRepository) UpdateUser(ctx context.Context, input *models.UpdateUser
 		user.Name = *input.Name
 	}
 
+	if len(updatedColumns) == 0 {
+		return fromGenUser(user, profileImageBase), nil
+	}
+
 	rows, err := user.Update(ctx, tx, boil.Whitelist(updatedColumns...))
 	if err != nil {
 		if err := tx.Rollback(); err != nil {
