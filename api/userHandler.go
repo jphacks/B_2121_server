@@ -129,3 +129,25 @@ func (h handler) DeleteUserIdCommunitiesCommunityId(ctx echo.Context, id openapi
 
 	return ctx.NoContent(http.StatusNoContent)
 }
+
+func (h handler) PutUserMe(ctx echo.Context) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	_ = info.UserId
+
+	var req openapi.PutUserMeJSONRequestBody
+	err := ctx.Bind(&req)
+	if err != nil {
+		ctx.Logger().Errorf("failed to bind request: %v", err)
+		return echo.ErrBadRequest
+	}
+
+	//	TODO: impl
+	return ctx.JSON(http.StatusOK, openapi.UserDetail{
+		User:           openapi.User{},
+		BookmarkCount:  0,
+		CommunityCount: 0,
+	})
+}
