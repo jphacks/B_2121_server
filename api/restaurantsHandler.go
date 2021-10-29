@@ -133,3 +133,20 @@ func (h handler) SearchRestaurants(ctx echo.Context, params openapi.SearchRestau
 		Restaurants: &ret,
 	})
 }
+
+func (h handler) GetRestaurantIdOther(ctx echo.Context, id openapi.Long, params openapi.GetRestaurantIdOtherParams) error {
+	communityId := params.CommunityId
+	communities, err := h.restaurantUseCase.GetOtherCommunitiesWithSameRestaurants(ctx.Request().Context(), int64(id), int64(communityId))
+	if err != nil {
+		return err
+	}
+
+	ret := make([]openapi.Community, 0)
+	for _, community := range communities {
+		ret = append(ret, *community.ToOpenApiCommunity())
+	}
+
+	return ctx.JSON(http.StatusOK, openapi.SearchCommunityResponse{
+		Communities: &ret,
+	})
+}

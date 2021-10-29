@@ -82,3 +82,11 @@ func (r RestaurantUseCase) RemoveRestaurantFromCommunity(ctx context.Context, us
 
 	return nil
 }
+
+func (r RestaurantUseCase) GetOtherCommunitiesWithSameRestaurants(ctx context.Context, restaurantId, communityId int64) ([]*models.Community, error) {
+	communities, err := r.communityRestaurantsRepository.ListCommunitiesWithSameRestaurants(ctx, restaurantId, communityId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get communities with the same restaurants: %w", err)
+	}
+	return communities, nil
+}
