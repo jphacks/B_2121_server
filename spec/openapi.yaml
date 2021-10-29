@@ -298,6 +298,11 @@ paths:
             format: int64
           in: path
           required: true
+        - name: community_id
+          schema:
+            $ref: "#/components/schemas/long"
+          in: query
+          required: true
       responses:
         '200':
           description: OK
