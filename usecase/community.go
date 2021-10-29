@@ -2,11 +2,13 @@ package usecase
 
 import (
 	"context"
+	"net/http"
 	"net/url"
 
 	"github.com/jphacks/B_2121_server/config"
 	"github.com/jphacks/B_2121_server/models"
 	"github.com/jphacks/B_2121_server/session"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/xerrors"
 )
 
@@ -15,15 +17,27 @@ type CommunityUseCase struct {
 	communityRepository            models.CommunityRepository
 	affiliationRepository          models.AffiliationRepository
 	communityRestaurantsRepository models.CommunityRestaurantsRepository
+	inviteTokenRepository          models.InviteTokenRepository
+	userRepository                 models.UserRepository
 	imageUrlBase                   string
 }
 
-func NewCommunityUseCase(store session.Store, config *config.ServerConfig, communityRepository models.CommunityRepository, affiliationRepository models.AffiliationRepository, communityRestaurantsRepository models.CommunityRestaurantsRepository) CommunityUseCase {
+func NewCommunityUseCase(
+	store session.Store,
+	config *config.ServerConfig,
+	communityRepository models.CommunityRepository,
+	affiliationRepository models.AffiliationRepository,
+	communityRestaurantsRepository models.CommunityRestaurantsRepository,
+	inviteTokenRepository models.InviteTokenRepository,
+	userRepository models.UserRepository,
+) CommunityUseCase {
 	return CommunityUseCase{
 		sessionStore:                   store,
 		communityRepository:            communityRepository,
 		affiliationRepository:          affiliationRepository,
 		communityRestaurantsRepository: communityRestaurantsRepository,
+		inviteTokenRepository:          inviteTokenRepository,
+		userRepository:                 userRepository,
 		imageUrlBase:                   config.ProfileImageBaseUrl,
 	}
 }
@@ -75,4 +89,22 @@ func (u *CommunityUseCase) ListUsers(ctx context.Context, communityId int64) ([]
 		return nil, xerrors.Errorf("failed to list users: %w", err)
 	}
 	return users, nil
+}
+
+func (u *CommunityUseCase) IssueInviteToken(ctx context.Context, issuerId int64, communityId int64) (*models.InviteToken, error) {
+	permitted, err := u.userRepository.ExistInCommunity(ctx, issuerId, communityId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !permitted {
+		return nil, echo.NewHTTPError(http.StatusForbidden)
+	}
+
+	inviteToken, err := u.inviteTokenRepository.Issue(ctx, communityId)
+	if err != nil {
+		return nil, err
+	}
+
+	return inviteToken, nil
 }

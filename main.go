@@ -53,10 +53,11 @@ func main() {
 	restaurantRepository := database.NewRestaurantRepository(db)
 	commentRepository := database.NewCommentRepository(db)
 	bookmarkRepository := database.NewBookmarkRepository(db)
+	inviteTokenRepository := database.NewInviteTokenRepository(db)
 
 	store := session.NewStore("key")
-	userUseCase := usecase.NewUserUseCase(store, userRepository, affiliationRepository, conf)
-	communityUseCase := usecase.NewCommunityUseCase(store, conf, communityRepository, affiliationRepository, communityRestaurantsRepository)
+	userUseCase := usecase.NewUserUseCase(store, userRepository, affiliationRepository, inviteTokenRepository, conf)
+	communityUseCase := usecase.NewCommunityUseCase(store, conf, communityRepository, affiliationRepository, communityRestaurantsRepository, inviteTokenRepository, userRepository)
 	restaurantUseCase := usecase.NewRestaurantUseCase(hotpepper, restaurantRepository, userRepository, communityRestaurantsRepository)
 	commentUseCase := usecase.NewCommentUseCase(commentRepository, userRepository)
 	bookmarkUseCase := usecase.NewBookmarkUseCase(bookmarkRepository)

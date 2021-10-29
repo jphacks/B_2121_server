@@ -9,6 +9,7 @@ var TableNames = struct {
 	Comments               string
 	Communities            string
 	CommunitiesRestaurants string
+	InviteTokens           string
 	Restaurants            string
 	SchemaMigrations       string
 	Users                  string
@@ -18,6 +19,7 @@ var TableNames = struct {
 	Comments:               "comments",
 	Communities:            "communities",
 	CommunitiesRestaurants: "communities_restaurants",
+	InviteTokens:           "invite_tokens",
 	Restaurants:            "restaurants",
 	SchemaMigrations:       "schema_migrations",
 	Users:                  "users",
