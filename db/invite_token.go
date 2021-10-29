@@ -2,8 +2,6 @@ package db
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -11,6 +9,7 @@ import (
 	"github.com/jphacks/B_2121_server/models_gen"
 	"github.com/lithammer/shortuuid/v3"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/xerrors"
 )
 
@@ -28,12 +27,16 @@ func NewInviteTokenRepository(db *sqlx.DB) models.InviteTokenRepository {
 
 func (r *inviteTokenRepository) Issue(ctx context.Context, communityId int64) (*models.InviteToken, error) {
 	token := shortuuid.New()
+	tokenDigest, err := newDigestString(token)
+	if err != nil {
+		return nil, err
+	}
 
 	var it models_gen.InviteToken
-	it.TokenDigest = newDigestString(token)
+	it.TokenDigest = tokenDigest
 	it.CommunityID = communityId
 	it.ExpiresAt = time.Now().Add(inviteTokenExpiresIn)
-	err := it.Insert(ctx, r.db, boil.Whitelist("token_digest", "community_id", "expires_at"))
+	err = it.Insert(ctx, r.db, boil.Whitelist("token_digest", "community_id", "expires_at"))
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +48,11 @@ func (r *inviteTokenRepository) Issue(ctx context.Context, communityId int64) (*
 }
 
 func (r *inviteTokenRepository) Verify(ctx context.Context, token string) (int64, error) {
-	it, err := models_gen.FindInviteToken(ctx, r.db, newDigestString(token), "community_id", "expires_at")
+	tokenDigest, err := newDigestString(token)
+	if err != nil {
+		return 0, err
+	}
+	it, err := models_gen.FindInviteToken(ctx, r.db, tokenDigest, "community_id", "expires_at")
 	if err != nil {
 		return 0, err
 	}
@@ -57,7 +64,10 @@ func (r *inviteTokenRepository) Verify(ctx context.Context, token string) (int64
 	return it.CommunityID, nil
 }
 
-func newDigestString(token string) string {
-	b := sha256.Sum256([]byte(token))
-	return hex.EncodeToString(b[:])
+func newDigestString(token string) (string, error) {
+	b, err := bcrypt.GenerateFromPassword([]byte(token), 10)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
