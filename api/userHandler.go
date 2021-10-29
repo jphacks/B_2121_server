@@ -129,3 +129,7 @@ func (h handler) DeleteUserIdCommunitiesCommunityId(ctx echo.Context, id openapi
 
 	return ctx.NoContent(http.StatusNoContent)
 }
+
+func (h handler) SearchUsers(ctx echo.Context, params openapi.SearchUsersParams) error {
+	panic("implement me")
+}
