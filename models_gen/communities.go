@@ -130,11 +130,13 @@ var CommunityRels = struct {
 	Bookmarks              string
 	Comments               string
 	CommunitiesRestaurants string
+	InviteTokens           string
 }{
 	Affiliations:           "Affiliations",
 	Bookmarks:              "Bookmarks",
 	Comments:               "Comments",
 	CommunitiesRestaurants: "CommunitiesRestaurants",
+	InviteTokens:           "InviteTokens",
 }
 
 // communityR is where relationships are stored.
@@ -143,6 +145,7 @@ type communityR struct {
 	Bookmarks              BookmarkSlice              `boil:"Bookmarks" json:"Bookmarks" toml:"Bookmarks" yaml:"Bookmarks"`
 	Comments               CommentSlice               `boil:"Comments" json:"Comments" toml:"Comments" yaml:"Comments"`
 	CommunitiesRestaurants CommunitiesRestaurantSlice `boil:"CommunitiesRestaurants" json:"CommunitiesRestaurants" toml:"CommunitiesRestaurants" yaml:"CommunitiesRestaurants"`
+	InviteTokens           InviteTokenSlice           `boil:"InviteTokens" json:"InviteTokens" toml:"InviteTokens" yaml:"InviteTokens"`
 }
 
 // NewStruct creates a new relationship struct
@@ -514,6 +517,27 @@ func (o *Community) CommunitiesRestaurants(mods ...qm.QueryMod) communitiesResta
 
 	if len(queries.GetSelect(query.Query)) == 0 {
 		queries.SetSelect(query.Query, []string{"`communities_restaurants`.*"})
+	}
+
+	return query
+}
+
+// InviteTokens retrieves all the invite_token's InviteTokens with an executor.
+func (o *Community) InviteTokens(mods ...qm.QueryMod) inviteTokenQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`invite_tokens`.`community_id`=?", o.ID),
+	)
+
+	query := InviteTokens(queryMods...)
+	queries.SetFrom(query.Query, "`invite_tokens`")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"`invite_tokens`.*"})
 	}
 
 	return query
@@ -911,6 +935,104 @@ func (communityL) LoadCommunitiesRestaurants(ctx context.Context, e boil.Context
 	return nil
 }
 
+// LoadInviteTokens allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (communityL) LoadInviteTokens(ctx context.Context, e boil.ContextExecutor, singular bool, maybeCommunity interface{}, mods queries.Applicator) error {
+	var slice []*Community
+	var object *Community
+
+	if singular {
+		object = maybeCommunity.(*Community)
+	} else {
+		slice = *maybeCommunity.(*[]*Community)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &communityR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &communityR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`invite_tokens`),
+		qm.WhereIn(`invite_tokens.community_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load invite_tokens")
+	}
+
+	var resultSlice []*InviteToken
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice invite_tokens")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on invite_tokens")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for invite_tokens")
+	}
+
+	if len(inviteTokenAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.InviteTokens = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &inviteTokenR{}
+			}
+			foreign.R.Community = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.CommunityID {
+				local.R.InviteTokens = append(local.R.InviteTokens, foreign)
+				if foreign.R == nil {
+					foreign.R = &inviteTokenR{}
+				}
+				foreign.R.Community = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // AddAffiliations adds the given related objects to the existing relationships
 // of the community, optionally inserting them as new records.
 // Appends related to o.R.Affiliations.
@@ -1114,6 +1236,59 @@ func (o *Community) AddCommunitiesRestaurants(ctx context.Context, exec boil.Con
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &communitiesRestaurantR{
+				Community: o,
+			}
+		} else {
+			rel.R.Community = o
+		}
+	}
+	return nil
+}
+
+// AddInviteTokens adds the given related objects to the existing relationships
+// of the community, optionally inserting them as new records.
+// Appends related to o.R.InviteTokens.
+// Sets related.R.Community appropriately.
+func (o *Community) AddInviteTokens(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*InviteToken) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.CommunityID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `invite_tokens` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"community_id"}),
+				strmangle.WhereClause("`", "`", 0, inviteTokenPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.TokenDigest}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.CommunityID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &communityR{
+			InviteTokens: related,
+		}
+	} else {
+		o.R.InviteTokens = append(o.R.InviteTokens, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &inviteTokenR{
 				Community: o,
 			}
 		} else {
