@@ -18,6 +18,7 @@ type CommunityUseCase struct {
 	affiliationRepository          models.AffiliationRepository
 	communityRestaurantsRepository models.CommunityRestaurantsRepository
 	inviteTokenRepository          models.InviteTokenRepository
+	userRepository                 models.UserRepository
 	imageUrlBase                   string
 }
 
@@ -28,6 +29,7 @@ func NewCommunityUseCase(
 	affiliationRepository models.AffiliationRepository,
 	communityRestaurantsRepository models.CommunityRestaurantsRepository,
 	inviteTokenRepository models.InviteTokenRepository,
+	userRepository models.UserRepository,
 ) CommunityUseCase {
 	return CommunityUseCase{
 		sessionStore:                   store,
@@ -35,6 +37,7 @@ func NewCommunityUseCase(
 		affiliationRepository:          affiliationRepository,
 		communityRestaurantsRepository: communityRestaurantsRepository,
 		inviteTokenRepository:          inviteTokenRepository,
+		userRepository:                 userRepository,
 		imageUrlBase:                   config.ProfileImageBaseUrl,
 	}
 }
@@ -89,22 +92,19 @@ func (u *CommunityUseCase) ListUsers(ctx context.Context, communityId int64) ([]
 }
 
 func (u *CommunityUseCase) IssueInviteToken(ctx context.Context, issuerId int64, communityId int64) (*models.InviteToken, error) {
-	users, err := u.affiliationRepository.ListCommunityUsers(ctx, communityId, &url.URL{})
+	permitted, err := u.userRepository.ExistInCommunity(ctx, issuerId, communityId)
 	if err != nil {
 		return nil, err
 	}
-	for _, user := range users {
-		if user.Id != issuerId {
-			continue
-		}
-		// the issuer is permitted to issue the token
-		inviteToken, err := u.inviteTokenRepository.Issue(ctx, communityId)
-		if err != nil {
-			return nil, err
-		}
 
-		return inviteToken, nil
+	if !permitted {
+		return nil, echo.NewHTTPError(http.StatusForbidden)
 	}
-	// the issuer is not permitted to issue the token
-	return nil, echo.NewHTTPError(http.StatusForbidden)
+
+	inviteToken, err := u.inviteTokenRepository.Issue(ctx, communityId)
+	if err != nil {
+		return nil, err
+	}
+
+	return inviteToken, nil
 }
