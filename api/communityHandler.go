@@ -99,5 +99,19 @@ func (h handler) ListUsersOfCommunity(ctx echo.Context, id int, _ openapi.ListUs
 }
 
 func (h handler) GetCommunityIdToken(ctx echo.Context, id int) error {
-	panic("implement me")
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+
+	inviteToken, err := h.communityUseCase.IssueInviteToken(ctx.Request().Context(), userId, int64(id))
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, openapi.GetCommunityIdTokenResponse{
+		ExpiresIn:   int(inviteToken.ExpiresIn.Seconds()),
+		InviteToken: inviteToken.Token,
+	})
 }
