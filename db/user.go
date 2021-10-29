@@ -81,6 +81,16 @@ func (u userRepository) UpdateProfileImage(ctx context.Context, userId int64, fi
 	return nil
 }
 
+type communityImage struct {
+	CommunityId int64  `db:"community_id"`
+	ImageUrl    string `db:"image_url"`
+}
+
+type communityNums struct {
+	CommunityId int64 `db:"community_id"`
+	Num         int   `db:"num"`
+}
+
 func (u userRepository) ListUserCommunity(ctx context.Context, userId int64) ([]*models.Community, error) {
 	community, err := models_gen.Communities(
 		qm.InnerJoin("affiliation ON affiliation.community_id = communities.id"),
@@ -89,9 +99,69 @@ func (u userRepository) ListUserCommunity(ctx context.Context, userId int64) ([]
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get communities: %w", err)
 	}
+
+	images := make([]communityImage, 0)
+	err = u.db.SelectContext(ctx, &images, `SELECT joined.community_id AS community_id, image_url
+FROM (
+       SELECT communities_restaurants.id,
+              community_id,
+              restaurant_id,
+              r.image_url,
+              communities_restaurants.created_at,
+              ROW_NUMBER() OVER (PARTITION BY community_id ORDER BY r.created_at DESC ) AS num
+       FROM communities_restaurants
+              INNER JOIN restaurants r
+                         ON communities_restaurants.restaurant_id = r.id
+       ORDER BY community_id, num) AS joined
+       INNER JOIN affiliation ON joined.community_id = affiliation.community_id
+WHERE joined.num <= ?
+  AND user_id = ?`, numOfRestaurantImagePerCommunity, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image urls from database: %w", err)
+	}
+	imageUrlMap := toImageUrlMap(images)
+
+	restaurantNums := make([]communityNums, 0, len(community))
+	err = u.db.SelectContext(ctx, &restaurantNums, `SELECT a.community_id AS community_id, COUNT(restaurant_id) AS num
+FROM communities_restaurants INNER JOIN affiliation a ON communities_restaurants.community_id = a.community_id
+WHERE user_id = ?
+GROUP BY community_id;`, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get restaurant count from database: %s", err)
+	}
+	restaurantNumsMap := toCommunityNumsMap(restaurantNums)
+
+	userNums := make([]communityNums, 0, len(community))
+	err = u.db.SelectContext(ctx, &userNums, `SELECT a1.community_id AS community_id, COUNT(a1.user_id) AS num
+FROM affiliation AS a1 INNER JOIN affiliation AS a2 ON a1.community_id = a2.community_id
+WHERE a2.user_id = ?
+GROUP BY a1.community_id`, userId)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get user count from database: %s", err)
+	}
+	userNumsMap := toCommunityNumsMap(userNums)
+
 	ret := make([]*models.Community, 0)
 	for _, c := range community {
-		ret = append(ret, &models.Community{Community: *c})
+		images, ok := imageUrlMap[c.ID]
+		if !ok {
+			images = []string{}
+		}
+		restaurantNum, ok := restaurantNumsMap[c.ID]
+		if !ok {
+			restaurantNum = 0
+		}
+
+		userNum, ok := userNumsMap[c.ID]
+		if !ok {
+			userNum = 0
+		}
+		ret = append(ret, &models.Community{
+			Community:      *c,
+			ImageUrls:      images,
+			NumRestaurants: restaurantNum,
+			NumUsers:       userNum,
+		})
 	}
 	return ret, nil
 }
@@ -120,4 +190,25 @@ func fromGenUser(u *models_gen.User, imageUrlBase url.URL) *models.User {
 		Name:            u.Name,
 		ProfileImageUrl: "",
 	}
+}
+
+func toImageUrlMap(imageUrls []communityImage) map[int64][]string {
+	ret := make(map[int64][]string)
+	for _, imageUrl := range imageUrls {
+		arr, ok := ret[imageUrl.CommunityId]
+		if ok {
+			ret[imageUrl.CommunityId] = append(arr, imageUrl.ImageUrl)
+		} else {
+			ret[imageUrl.CommunityId] = []string{imageUrl.ImageUrl}
+		}
+	}
+	return ret
+}
+
+func toCommunityNumsMap(nums []communityNums) map[int64]int {
+	ret := make(map[int64]int)
+	for _, imageUrl := range nums {
+		ret[imageUrl.CommunityId] = imageUrl.Num
+	}
+	return ret
 }
