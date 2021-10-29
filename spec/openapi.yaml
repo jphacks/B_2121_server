@@ -504,6 +504,9 @@ components:
       required:
         - id
         - name
+        - description
+        - location
+        - imageUrls
       properties:
         id:
           $ref: "#/components/schemas/long"
@@ -513,6 +516,10 @@ components:
           type: string
         location:
           $ref: "#/components/schemas/location"
+        imageUrls:
+          type: array
+          items:
+            type: string
     community_detail:
       allOf:
         - $ref: "#/components/schemas/community"
