@@ -30,6 +30,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/community"
       operationId: get-community-by-id
+    put:
+      summary: Update community infomation
+      tags:
+        - Community
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          name: id
+          in: path
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+                - location
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                location:
+                  $ref: "#/components/schemas/location"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/community"
+        '404':
+          description: Not found
+        '401':
+          description: Forbidden
+      operationId: update-community
   '/community/{id}/token':
     get:
       summary: Get an invite token

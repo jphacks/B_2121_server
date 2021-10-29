@@ -115,3 +115,28 @@ func (h handler) GetCommunityIdToken(ctx echo.Context, id int) error {
 		InviteToken: inviteToken.Token,
 	})
 }
+
+func (h handler) UpdateCommunity(ctx echo.Context, id int64) error {
+	info := session.GetAuthInfo(ctx)
+	if !info.Authenticated {
+		return echo.ErrUnauthorized
+	}
+	userId := info.UserId
+
+	var req openapi.UpdateCommunityJSONRequestBody
+	err := ctx.Bind(&req)
+	if err != nil {
+		ctx.Logger().Errorf("failed to bind request: %v", err)
+		return echo.ErrBadRequest
+	}
+
+	community, err := h.communityUseCase.UpdateCommunity(ctx.Request().Context(), userId, id, req.Name, req.Description, *models.FromOpenApiLocation(req.Location))
+	if xerrors.Is(err, sql.ErrNoRows) {
+		return echo.ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, community.ToOpenApiCommunity())
+}

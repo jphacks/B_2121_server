@@ -18,6 +18,7 @@ type CommunityRepository interface {
 	GetCommunityByID(ctx context.Context, id int64) (*Community, error)
 	NewCommunity(ctx context.Context, name string, description string, loc Location) (*Community, error)
 	SearchCommunity(ctx context.Context, keyword string) ([]*Community, error)
+	UpdateCommunity(ctx context.Context, communityId int64, name string, description string, loc Location) (*Community, error)
 }
 
 func (c *Community) ToOpenApiCommunity() *openapi.Community {
