@@ -10,6 +10,8 @@ import (
 	"golang.org/x/xerrors"
 )
 
+const numOfRestaurantImagePerCommunity = 6
+
 type communityRepository struct {
 	db *sqlx.DB
 }
@@ -34,10 +36,22 @@ func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*
 		return nil, xerrors.Errorf("failed to count users related to the community: %w", err)
 	}
 
+	urls := make([]string, 0, numOfRestaurantImagePerCommunity)
+	err = c.db.SelectContext(ctx, &urls, `SELECT image_url
+FROM communities_restaurants
+       INNER JOIN restaurants r ON communities_restaurants.restaurant_id = r.id
+WHERE community_id = ?
+ORDER BY r.created_at DESC
+LIMIT ?;`, id, numOfRestaurantImagePerCommunity)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get image url from database: %w", err)
+	}
+
 	return &models.Community{
 		Community:      *community,
 		NumRestaurants: int(numRestaurants),
 		NumUsers:       int(userCount),
+		ImageUrls:      urls,
 	}, nil
 }
 
