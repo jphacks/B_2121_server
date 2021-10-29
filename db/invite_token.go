@@ -10,6 +10,7 @@ import (
 	"github.com/jphacks/B_2121_server/models_gen"
 	"github.com/lithammer/shortuuid/v3"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"golang.org/x/xerrors"
 )
 
 const (
@@ -42,8 +43,17 @@ func (r *inviteTokenRepository) Issue(ctx context.Context, communityId int64) (*
 	}, nil
 }
 
-func (r *inviteTokenRepository) Verify(ctx context.Context, token string) (string, error) {
-	panic("implement me")
+func (r *inviteTokenRepository) Verify(ctx context.Context, token string) (int64, error) {
+	it, err := models_gen.FindInviteToken(ctx, r.db, newDigestString(token), "community_id", "expires_at")
+	if err != nil {
+		return 0, err
+	}
+
+	if it.ExpiresAt.Before(time.Now()) {
+		return 0, xerrors.New("The token already expired")
+	}
+
+	return it.CommunityID, nil
 }
 
 func newDigestString(token string) string {
