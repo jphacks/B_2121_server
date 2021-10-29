@@ -232,6 +232,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/searchCommunityResponse"
       operationId: search-communities
+  '/community/{community_id}/invite':
+    post:
+      summary: Invite other users to the specified community
+      tags:
+        - Community
+      parameters:
+        - name: community_id
+          required: true
+          schema:
+            $ref: "#/components/schemas/long"
+          in: path
+      responses:
+        '204':
+          description: |
+            No Content
+            Succssflly invited
+        '403':
+          description: Forbidden
+      operationId: invite-user-to-community
   '/restaurant/search':
     get:
       summary: Search restaurants using keyword and location
@@ -397,6 +416,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/uploadImageProfileResponse"
       operationId: upload-profile-image
+  '/user/search':
+    get:
+      summary: Search users by name
+      tags:
+        - User
+      parameters:
+        - $ref: "#/components/parameters/pageQuery"
+        - name: keyword
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/searchUserResponse"
+      operationId: search-users
   '/user/{id}/bookmark':
     get:
       summary: Get bookmarking list of the specified user
@@ -754,6 +793,15 @@ components:
       properties:
         community_id:
           $ref: "#/components/schemas/long"
+    searchUserResponse:
+      allOf:
+        - $ref: "#/components/schemas/pageInfo"
+        - type: object
+          properties:
+            restaurants:
+              type: array
+              items:
+                $ref: "#/components/schemas/user"
   securitySchemes:
     token:
       type: apiKey
