@@ -137,11 +137,15 @@ func (u *UserUseCase) LeaveCommunity(ctx context.Context, userId int64, communit
 	return u.affiliationRepo.LeaveCommunity(ctx, userId, communityId)
 }
 
-func (u *UserUseCase) UpdateMe(ctx context.Context, userId int64, userName string) (*models.UserDetail, error) {
+func (u *UserUseCase) UpdateMe(ctx context.Context, userId int64, userName *string) (*models.User, error) {
+	baseUrl, err := url.Parse(u.imageUrlBase)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to load base url: %w", err)
+	}
 	user, err := u.userRepo.UpdateUser(ctx, &models.UpdateUserInput{
 		Id:   userId,
-		Name: &userName,
-	})
+		Name: userName,
+	}, *baseUrl)
 	if err != nil {
 		return nil, err
 	}
