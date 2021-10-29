@@ -28,7 +28,7 @@ paths:
           content:
             'application/json':
               schema:
-                $ref: "#/components/schemas/community_detail"
+                $ref: "#/components/schemas/community"
       operationId: get-community-by-id
   '/community':
     post:
@@ -507,6 +507,8 @@ components:
         - description
         - location
         - imageUrls
+        - num_restaurant
+        - num_user
       properties:
         id:
           $ref: "#/components/schemas/long"
@@ -520,17 +522,10 @@ components:
           type: array
           items:
             type: string
-    community_detail:
-      allOf:
-        - $ref: "#/components/schemas/community"
-        - type: object
-          required:
-            - user_count
-          properties:
-            user_count:
-              type: integer
-            num_restaurant:
-              type: integer
+        num_user:
+          type: integer
+        num_restaurant:
+          type: integer
     createCommunityRequest:
       type: object
       required:
