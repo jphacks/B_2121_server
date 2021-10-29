@@ -18,7 +18,7 @@ func NewCommunityRepository(db *sqlx.DB) models.CommunityRepository {
 	return &communityRepository{db}
 }
 
-func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*models.CommunityDetail, error) {
+func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*models.Community, error) {
 	community, err := models_gen.FindCommunity(ctx, c.db, id)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to find a community by ID: %w", err)
@@ -34,10 +34,10 @@ func (c *communityRepository) GetCommunityByID(ctx context.Context, id int64) (*
 		return nil, xerrors.Errorf("failed to count users related to the community: %w", err)
 	}
 
-	return &models.CommunityDetail{
-		Community:     models.Community{Community: *community},
-		NumRestaurant: int(numRestaurants),
-		UserCount:     int(userCount),
+	return &models.Community{
+		Community:      *community,
+		NumRestaurants: int(numRestaurants),
+		NumUsers:       int(userCount),
 	}, nil
 }
 

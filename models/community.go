@@ -9,16 +9,13 @@ import (
 
 type Community struct {
 	models_gen.Community
-}
-
-type CommunityDetail struct {
-	Community
-	NumRestaurant int
-	UserCount     int
+	ImageUrls      []string
+	NumRestaurants int
+	NumUsers       int
 }
 
 type CommunityRepository interface {
-	GetCommunityByID(ctx context.Context, id int64) (*CommunityDetail, error)
+	GetCommunityByID(ctx context.Context, id int64) (*Community, error)
 	NewCommunity(ctx context.Context, name string, description string, loc Location) (*Community, error)
 	SearchCommunity(ctx context.Context, keyword string) ([]*Community, error)
 }
@@ -32,18 +29,12 @@ func (c *Community) ToOpenApiCommunity() *openapi.Community {
 		}
 	}
 	return &openapi.Community{
-		Description: c.Description,
-		Id:          openapi.Long(c.ID),
-		Location:    loc,
-		Name:        c.Name,
-	}
-}
-
-func (c *CommunityDetail) ToOpenApiCommunityDetail() *openapi.CommunityDetail {
-	comm := c.ToOpenApiCommunity()
-	return &openapi.CommunityDetail{
-		Community:     *comm,
-		NumRestaurant: &c.NumRestaurant,
-		UserCount:     c.UserCount,
+		Description:   c.Description,
+		Id:            openapi.Long(c.ID),
+		Location:      loc,
+		Name:          c.Name,
+		ImageUrls:     c.ImageUrls,
+		NumRestaurant: c.NumRestaurants,
+		NumUser:       c.NumUsers,
 	}
 }

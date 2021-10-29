@@ -28,7 +28,7 @@ func NewCommunityUseCase(store session.Store, config *config.ServerConfig, commu
 	}
 }
 
-func (u *CommunityUseCase) GetCommunity(ctx context.Context, id int64) (*models.CommunityDetail, error) {
+func (u *CommunityUseCase) GetCommunity(ctx context.Context, id int64) (*models.Community, error) {
 	return u.communityRepository.GetCommunityByID(ctx, id)
 }
 
