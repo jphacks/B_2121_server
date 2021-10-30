@@ -1,7 +1,14 @@
 # goyotashi - サーバーサイド (B_2121)
+
 クライアントサイドは[こちら](https://github.com/jphacks/B_2121_client)
 
 <img src="https://user-images.githubusercontent.com/44559810/139521245-ca0d4cfd-e5fc-422b-9c40-3ffaadca06a0.png" alt="goyotashi-LPicture" width="100%">
+<p align="center">
+<div style="display:flex">
+  <img style="flex-grow:1" src="https://gyazo.com/5a83d324e5bb8d6230770784bb826e30.gif" width="49%">
+  <img style="flex-grow:1" src="https://gyazo.com/48635363b4836a78fa7fe7753bfe6644.gif" width="49%">
+</div>
+</p>
 
 ## 製品概要
 
@@ -19,6 +26,8 @@
 ### 製品説明（具体的な製品の説明）
 定期的にご飯を食べる人達(**グループ**)でよく行くお店リストを集約・可視化し、飲食店選びのコストを下げてくれるiOSアプリ。  
 リストはグループ外にも公開され、副作用として他のグループ御用達の、信頼できる飲食店を知ることができる。
+
+<img width="100%" alt="スクリーンショット 2021-10-30 15 02 58" src="https://user-images.githubusercontent.com/44559810/139523279-7355b480-5b8e-4160-97fb-eede0470c650.png">
 
 ### 特長
 #### 1. 知っている飲食店の中から選ぶので、選択肢が多くなくて選びやすい！
