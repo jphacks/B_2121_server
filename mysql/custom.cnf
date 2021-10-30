@@ -1,6 +1,6 @@
 [mysqld]
 # Connections
-max_connections = 8
+max_connections = 128
 thread_cache_size = 8
 
 table_open_cache = 1000
