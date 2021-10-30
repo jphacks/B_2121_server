@@ -1,15 +1,20 @@
-# goyotashi
+# goyotashi - サーバーサイド (B_2121)
 クライアントサイドは[こちら](https://github.com/jphacks/B_2121_client)
 
-[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2021/07/JPHACKS2021_ogp.jpg)](https://www.youtube.com/watch?v=LUPQFB4QyVo)
+<img src="https://user-images.githubusercontent.com/44559810/139521245-ca0d4cfd-e5fc-422b-9c40-3ffaadca06a0.png" alt="goyotashi-LPicture" width="100%">
 
 ## 製品概要
+
+### eat\*Tech
 グループでよく行く飲食店のリストを共有する *eat\*Tech*（消費者の食行動\*Tech）SNS 「**goyotashi**」
 
 ### 背景(製品開発のきっかけ、課題等）
 グループや個人で飲食店に行くとき、「どこでもいい」と言いながら決まらないという面倒な問題がある。  
 人は既知の飲食店から行き先を選ぶ際、無意識によく行く飲食店リストを思い出そうとし、これでもない、あれでもないと悩む。  
 そんなときに見る便利なリストが欲しかった。
+実際にユーザーにインタビューをしたところ、以下のような意見が得られた。
+
+<img width="100%" alt="ユーザーインタビュー" src="https://user-images.githubusercontent.com/44559810/139521569-c65a5b7e-de0e-4c65-ac94-f4ba799a79f5.png">
 
 ### 製品説明（具体的な製品の説明）
 定期的にご飯を食べる人達(**グループ**)でよく行くお店リストを集約・可視化し、飲食店選びのコストを下げてくれるiOSアプリ。  
@@ -35,25 +40,22 @@
 * 既存のグルメアプリとの差別化
 
 ## 開発技術
+
+クライアントサイドは[こちら](https://github.com/jphacks/B_2121_client)
+
 ### 活用した技術
-* クライアント:swift
-* サーバ:Go
+* Go
+* docker
 
 #### API・データ
-* 
-* 
+* ホットペッパーAPI
 
 #### フレームワーク・ライブラリ・モジュール
-* 
-* 
-
-#### デバイス
-* 
+* golang-migrate
 
 ### 独自技術
 #### ハッカソンで開発した独自機能・技術
-* 独自で開発したものの内容をこちらに記載してください
-* 特に力を入れた部分をファイルリンク、またはcommit_idを記載してください。
+* アプリ、API、BDやAPIの設計、全てこの期間で開発しています
 
 <!--
 #### 製品に取り入れた研究内容（データ・ソフトウェアなど）（※アカデミック部門の場合のみ提出必須）
