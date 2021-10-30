@@ -96,6 +96,7 @@ func (u userRepository) ListUserCommunity(ctx context.Context, userId int64) ([]
 	community, err := models_gen.Communities(
 		qm.InnerJoin("affiliation ON affiliation.community_id = communities.id"),
 		qm.Where("user_id=?", userId),
+		qm.OrderBy("id DESC"),
 	).All(ctx, u.db)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get communities: %w", err)
