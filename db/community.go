@@ -76,7 +76,7 @@ func (c *communityRepository) NewCommunity(ctx context.Context, name string, des
 
 func (c *communityRepository) SearchCommunity(ctx context.Context, keyword string) ([]*models.Community, error) {
 	query := "%" + keyword + "%"
-	comm, err := models_gen.Communities(qm.Where("name LIKE ? OR description LIKE ?", query, query)).All(ctx, c.db) // c.db.SelectContext(ctx, &comm, "SELECT * FROM communities WHERE name LIKE ? OR description LIKE ?", query, query)
+	comm, err := models_gen.Communities(qm.Where("name LIKE ? OR description LIKE ?", query, query), qm.OrderBy("id DESC")).All(ctx, c.db) // c.db.SelectContext(ctx, &comm, "SELECT * FROM communities WHERE name LIKE ? OR description LIKE ?", query, query)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get from database: %w", err)
 	}
