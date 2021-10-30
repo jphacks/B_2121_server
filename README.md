@@ -44,17 +44,25 @@
 クライアントサイドは[こちら](https://github.com/jphacks/B_2121_client)
 
 ### 活用した技術
+
 * Go
 * docker
+* docker-compose
+* MySQL
+* GitHub Actions
+* Open API
 
 #### API・データ
 * ホットペッパーAPI
 
 #### フレームワーク・ライブラリ・モジュール
 * golang-migrate
+* echo
+* SQL Boiler
 
 ### 独自技術
 #### ハッカソンで開発した独自機能・技術
+
 * アプリ、API、BDやAPIの設計、全てこの期間で開発しています
 
 <!--
@@ -65,7 +73,9 @@
 
 ## ドキュメントなど
 [server side Wiki](https://github.com/jphacks/B_2121_server/wiki)  
-[client side Wiki](https://github.com/jphacks/B_2121_client/wiki)  
+[client side Wiki](https://github.com/jphacks/B_2121_client/wiki)
+
+[発表資料](https://docs.google.com/presentation/d/1oU93MItpDkqEni_x4t5PMh3QPij3ZHZhbPva-IOwYPQ/)
 
 - サーバーサイドの docker image は https://hub.docker.com/r/kmconner/goyotashi/ から参照できる
 
