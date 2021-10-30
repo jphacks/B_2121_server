@@ -94,9 +94,9 @@ type communityNums struct {
 
 func (u userRepository) ListUserCommunity(ctx context.Context, userId int64) ([]*models.Community, error) {
 	community, err := models_gen.Communities(
-		qm.InnerJoin("affiliation ON affiliation.community_id = communities.id"),
+		qm.InnerJoin("affiliation a ON a.community_id = communities.id"),
 		qm.Where("user_id=?", userId),
-		qm.OrderBy("id DESC"),
+		qm.OrderBy("a.created_at DESC"),
 	).All(ctx, u.db)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get communities: %w", err)
